@@ -12,6 +12,7 @@ import kong.unirest.json.JSONObject;
 import org.fusesource.jansi.Ansi;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -21,16 +22,15 @@ public final class SniperUtil {
 
     public static String getAuthToken(String userName, String password) {
         HttpResponse<JsonNode> jsonNodeHttpResponse = Unirest.post("https://authserver.mojang.com/authenticate")
+                .contentType("application/json")
                 .body(getAuthPayload(userName, password))
                 .asJson();
 
         if (!jsonNodeHttpResponse.isSuccess()) {
-            return "null";
+            return null;
         }
 
-        JsonNode body = jsonNodeHttpResponse.getBody();
-
-        return body.getObject().getString("accessToken");
+        return jsonNodeHttpResponse.getBody().getObject().getString("accessToken");
     }
 
     public static UUID getUniqueId(String name) {
@@ -45,12 +45,10 @@ public final class SniperUtil {
 
     public static String getOwner(String nowName) {
         HttpResponse<JsonNode> jsonNodeHttpResponse = Unirest.get("https://api.mojang.com/users/profiles/minecraft/" + nowName + "?at=" + (System.currentTimeMillis() - TIME)).asJson();
+
         if (!jsonNodeHttpResponse.isSuccess()) {
-            System.out.println(jsonNodeHttpResponse.getStatusText());
             return null;
         }
-
-        System.out.println(jsonNodeHttpResponse.getBody().toPrettyString());
 
         return jsonNodeHttpResponse.getBody().getObject().getString("name");
     }
@@ -63,7 +61,6 @@ public final class SniperUtil {
         if (object.isNull("username_history") || !jsonNodeHttpResponse.isSuccess()) {
             return null;
         }
-
 
         JSONArray history = object.getJSONArray("username_history");
         return history.getJSONObject(history.length() - 2).getString("username");
@@ -79,26 +76,32 @@ public final class SniperUtil {
 
         JSONArray history = object.getJSONArray("username_history");
 
-        return Instant.parse(history.getJSONObject(history.length() - 1).getString("changed_at")).toEpochMilli() + TIME;
+        return (Instant.parse(history.getJSONObject(history.length() - 1).getString("changed_at")).toEpochMilli() + TIME);
     }
 
-    public static void changeName(User user, Snipe snipe) {
-        HttpResponse<JsonNode> authorization = Unirest.get("https://api.minecraftservices.com/minecraft/profile/name/" + snipe.getName())
-                .header("Authorization", "Bearer " + getAuthToken(snipe.getAccount().getUserName(), snipe.getAccount().getPassword()))
+    public static void changeName(User user, Snipe snipe, String authToken) {
+        HttpResponse<JsonNode> authorization = Unirest.put("https://api.minecraftservices.com/minecraft/profile/name/" + snipe.getName())
+                .header("Authorization", "Bearer " + authToken)
                 .asJson();
 
         int status = authorization.getStatus();
 
         String message;
         if (status == 403) {
-            message = "Name already taken ;/";
+            message = " Name already taken or it's not available ;/";
         } else if (status == 401) {
-            message = "Unauthorized";
+            message = "Unauthorized (Maybe you provided wrong login data)";
         } else if (status == 200) {
             message = "Changed name (" + snipe.getName() + ")";
+            user.getSnipes().remove(snipe);
+            user.setSuccessSnipes(user.getSuccessSnipes() + 1);
         } else {
             message = authorization.getStatusText();
         }
+
+        message = message + " [" + new Date().toString() + "] ";
+
+        user.getLogs().add(authorization.getBody().toPrettyString());
 
         user.sendMessage("[" + snipe.getName() + "] " + message, Ansi.Color.MAGENTA, LogType.INFO);
         user.getLogs().add(message);
@@ -109,6 +112,11 @@ public final class SniperUtil {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("username", userName);
         jsonObject.addProperty("password", password);
+        //jsonObject.addProperty("requestUser", true);
+        //JsonObject agent = new JsonObject();
+        //agent.addProperty("name", "Minecraft");
+        //agent.addProperty("version", 1);
+        //  jsonObject.add("agent", agent);
         return jsonObject.toString();
     }
 

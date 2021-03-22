@@ -66,10 +66,18 @@ public final class SnipeCommand extends Command {
                     throw new CommandException("You provided wrong old owner ;/");
                 }
 
+                String userName = split[0];
+                String password = split[1];
+
+                if (SniperUtil.getAuthToken(userName, password) == null) {
+                    //    throw new CommandException("You provided wrong username/password");
+                }
+
+
                 long accessTime = SniperUtil.getAccessTime(oldOwner);
 
                 user.getSnipes().add(
-                        new Snipe(snipe, new Account(split[0], split[1]), accessTime)
+                        new Snipe(snipe, new Account(userName, password), accessTime)
                 );
                 user.setUpdateRequired(true);
                 user.sendMessage("Started sniping " + snipe + ". Access time: "

@@ -19,7 +19,7 @@ public class ClientCommandPacket extends Packet {
 
     @Override
     public void read(ByteBuf buf) {
-        command = super.readString(60, buf);
+        command = super.readString(300, buf);
     }
 
     @Override

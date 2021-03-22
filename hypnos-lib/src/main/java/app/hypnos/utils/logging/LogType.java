@@ -5,7 +5,8 @@ public enum LogType {
     ERROR("[ERROR]"),
     INFO("[INFO]"),
     WARNING("[WARNING]"),
-    DISCONNECTED("[DISCONNECTED]");
+    DISCONNECTED("[DISCONNECTED]"),
+    BROADCAST("[BROADCAST]");
 
     private final String prefix;
 

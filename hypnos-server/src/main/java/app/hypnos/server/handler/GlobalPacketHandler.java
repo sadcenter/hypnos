@@ -30,7 +30,6 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
 
-        System.out.println("received");
         Channel channel = channelHandlerContext.channel();
         User user = Server.INSTANCE.findByChannel(channel);
 
@@ -96,6 +95,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
         Channel channel = ctx.channel();
         if (channel.isOpen()) {
             channel.close();

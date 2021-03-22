@@ -22,6 +22,7 @@ public final class User {
     private final Set<String> logs;
     private String hardwareIdentifier;
     private Ban ban;
+    private int successSnipes;
 
     private transient boolean updateRequired;
     private transient long connectedSince;

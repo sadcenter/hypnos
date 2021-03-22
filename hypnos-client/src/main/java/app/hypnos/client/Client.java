@@ -82,10 +82,8 @@ public final class Client {
         connection = new Connection(ip, port);
 
         while (connection.getChannel() == null) {
-            System.out.println("null channel");
+            System.out.println();
         }
-
-        System.out.println("sending auth");
 
         authenticate(userName, password);
 
