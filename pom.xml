@@ -13,6 +13,7 @@
         <module>hypnos-server</module>
         <module>hypnos-lib</module>
         <module>hypnos-client</module>
+        <module>hypnos-web-api</module>
     </modules>
 
     <dependencies>

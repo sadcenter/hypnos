@@ -39,13 +39,10 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
         }
 
         if (packet instanceof ClientAuthenticatePacket clientAuthenticatePacket) {
-            System.out.println("auth");
             Server.INSTANCE.findByToken(AuthUtil.generateAuthToken(clientAuthenticatePacket.getName(), clientAuthenticatePacket.getPass())).ifPresentOrElse(byToken -> {
-                System.out.println(byToken.isBanned());
                 if (byToken.isBanned()) {
                     Ban ban = byToken.getBan();
                     PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "You are banned! \n ---> Admin: " + ban.getAdmin() + "\n ---> Reason: " + ban.getReason()), ChannelFutureListener.CLOSE);
-                    channel.close();
                     return;
                 }
 

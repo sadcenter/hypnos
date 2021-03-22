@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="hypnos-client" />
         <module name="hypnos-server" />
+        <module name="hypnos-web-api" />
         <module name="hypnos-lib" />
       </profile>
     </annotationProcessing>

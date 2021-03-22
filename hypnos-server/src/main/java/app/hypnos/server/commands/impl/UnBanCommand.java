@@ -27,6 +27,7 @@ public final class UnBanCommand extends Command {
             }
 
             bannedUser.setBan(null);
+            user.sendMessage("User unbanned!", Ansi.Color.GREEN, LogType.INFO);
         }, () -> user.sendMessage("Null user", Ansi.Color.YELLOW, LogType.WARNING));
 
     }
