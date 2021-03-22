@@ -9,7 +9,9 @@ import app.hypnos.server.data.User;
 import app.hypnos.server.database.ConverterCodec;
 import app.hypnos.server.database.impl.UserConverterCodec;
 import app.hypnos.server.threads.KeepAliveThread;
+import app.hypnos.server.threads.NickNameSniperThread;
 import app.hypnos.server.threads.SaveDataThread;
+import app.hypnos.server.utils.DateUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
@@ -80,6 +82,7 @@ public class Server {
 
         new SaveDataThread(this).start();
         new KeepAliveThread(this).start();
+        new NickNameSniperThread(this).start();
     }
 
 

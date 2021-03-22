@@ -66,24 +66,21 @@ public final class SnipeCommand extends Command {
                     throw new CommandException("You provided wrong old owner ;/");
                 }
 
-                String userName = split[0];
-                String password = split[1];
 
-                /*
-                if (SniperUtil.getAuthToken(userName, password) == null) {
-                        throw new CommandException("You provided wrong username/password");
+                Account account = new Account(split[0], split[1]);
+
+                if (SniperUtil.getAuthToken(account) == null) {
+                    throw new CommandException("You provided wrong username/password");
                 }
-                */
-
 
                 long accessTime = SniperUtil.getAccessTime(oldOwner);
 
                 user.getSnipes().add(
-                        new Snipe(snipe, new Account(userName, password), accessTime)
+                        new Snipe(snipe, account, accessTime)
                 );
                 user.setUpdateRequired(true);
                 user.sendMessage("Started sniping " + snipe + ". Access time: "
-                                 + DateUtil.getDate(accessTime) + " (left: " + DateUtil.timeToString(accessTime - System.currentTimeMillis()) + ")",
+                                + DateUtil.getDate(accessTime) + " (left: " + DateUtil.timeToString(accessTime - System.currentTimeMillis()) + ")",
                         Ansi.Color.GREEN, LogType.INFO);
             }
             case "list" -> {
@@ -93,8 +90,9 @@ public final class SnipeCommand extends Command {
                     user.sendMessage("Your snipes are empty!", Ansi.Color.YELLOW, LogType.INFO);
                 } else {
                     user.getSnipes().forEach(snipe -> user.sendMessage("Sniping: " + snipe.getName() + " (scheduled at "
-                                                                   + DateUtil.getDate(snipe.getAccessTime())
-                                                                   + ", left: " + DateUtil.timeToString(snipe.getAccessTime() - System.currentTimeMillis()) + ")",
+                                    + DateUtil.getDate(snipe.getAccessTime())
+                                    + ", left: " + DateUtil.timeToString(snipe.getAccessTime() - System.currentTimeMillis()) + ") views " +
+                                    SniperUtil.getViews(snipe.getName()),
                             Ansi.Color.GREEN,
                             LogType.INFO));
                 }
