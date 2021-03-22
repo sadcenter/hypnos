@@ -14,7 +14,7 @@ import java.util.Set;
 
 public final class SnipesCommand extends Command {
 
-    protected SnipesCommand() {
+    public SnipesCommand() {
         super("snipes", AccountType.ADMIN);
     }
 

@@ -30,6 +30,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
 
+        System.out.println("received");
         Channel channel = channelHandlerContext.channel();
         User user = Server.INSTANCE.findByChannel(channel);
 
@@ -105,6 +106,9 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelInactive(ChannelHandlerContext ctx) {
         User user = Server.INSTANCE.findByChannel(ctx.channel());
         if (user != null) {
+            if(user.isUpdateRequired()) {
+                Server.INSTANCE.getMongoDatabase().getCollection("users", User.class).replaceOne(user.getQuery(), user);
+            }
             user.setChannel(null);
         }
     }

@@ -27,6 +27,8 @@ public final class MessageThread extends Thread {
 
             if (commandText.isEmpty()) {
                 MessageUtil.sendMessage("Write a command, not empty text.", Ansi.Color.RED, LogType.ERROR, true);
+                stop();
+                start();
                 return;
             }
 

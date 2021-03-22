@@ -45,7 +45,7 @@ public class Server {
     private final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private final Set<User> users = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private final Set<Command> commands = Sets.newHashSet(new UnBanCommand(), new SnipeCommand(), new KickClientCommand(), new BanClientCommand(), new ClientsCommand(), new StatsCommand());
+    private final Set<Command> commands = Sets.newHashSet(new UnBanCommand(), new SnipeCommand(), new  SnipesCommand(),  new KickClientCommand(), new BanClientCommand(), new ClientsCommand(), new StatsCommand());
 
     private final Cache<Channel, Object> keepAliveCache = Caffeine.newBuilder()
             .expireAfterWrite(3, TimeUnit.SECONDS)
@@ -72,7 +72,7 @@ public class Server {
            //     new HashSet<>(),
              //   new HashSet<>());
 
-     //   this.mongoDatabase.getCollection("users", User.class).insertOne(user);
+     //        this.mongoDatabase.getCollection("users", User.class).insertOne(user);
 
         loadDatabase();
 
@@ -98,7 +98,7 @@ public class Server {
         );
         mongoDatabase = MongoClients.create(
                 MongoClientSettings.builder()
-                        .applyConnectionString(new ConnectionString("mongodb://localhost:27017/?readPreference=primary&ssl=false"))
+                        .applyConnectionString(new ConnectionString("mongodb://root:Kacper123@95.214.52.221:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false"))
                         .codecRegistry(codecRegistry)
                         .build()
         ).getDatabase("hypnos");

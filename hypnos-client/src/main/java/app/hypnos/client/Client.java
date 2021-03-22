@@ -8,11 +8,17 @@ import app.hypnos.network.packet.impl.client.ClientAuthenticatePacket;
 import app.hypnos.network.packet.storage.PacketStorage;
 import app.hypnos.utils.MessageUtil;
 import app.hypnos.utils.logging.LogType;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.netty.channel.Channel;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.fusesource.jansi.Ansi;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Scanner;
 
 @Getter
@@ -20,9 +26,13 @@ public final class Client {
 
     public static final Thread MAIN_THREAD = Thread.currentThread();
     public static Client INSTANCE;
-    private final PacketStorage packetStorage;
-    private final Connection connection;
+
+    private PacketStorage packetStorage;
+    private Connection connection;
     private MessageThread messageThread;
+
+
+    private static final int VERSION = 31;
 
     @SneakyThrows
     public Client() {
@@ -32,6 +42,32 @@ public final class Client {
         MessageUtil.clear();
 
         Scanner scanner = new Scanner(System.in);
+
+        String ip;
+        int port;
+
+        HttpResponse<String> response = HttpClient.newHttpClient()
+                .send(HttpRequest.newBuilder().GET().uri(URI.create("http://95.214.52.221:4893/api")).build(), HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            MessageUtil.sendMessage("Cant connect to api.", Ansi.Color.RED, LogType.ERROR, true);
+            Thread.sleep(4000L);
+            shutdown();
+            return;
+        }
+
+        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
+
+        if (jsonObject.get("version").getAsInt() != VERSION) {
+            MessageUtil.sendMessage("Install new client version!", Ansi.Color.CYAN, LogType.INFO, true);
+            Thread.sleep(4000L);
+            shutdown();
+            return;
+        }
+
+        ip = jsonObject.get("ip").getAsString();
+        port = jsonObject.get("port").getAsInt();
+
 
         MessageUtil.sendMessage("Username: ", Ansi.Color.CYAN, LogType.INFO, false);
         String userName = scanner.nextLine();
@@ -43,13 +79,17 @@ public final class Client {
 
         MessageUtil.clear();
 
-        connection = new Connection("127.0.0.1", 5482);
+        connection = new Connection(ip, port);
 
         while (connection.getChannel() == null) {
-
+            System.out.println("null channel");
         }
 
+        System.out.println("sending auth");
+
         authenticate(userName, password);
+
+        initialize();
 
         new KeepAliveThread(this).start();
 

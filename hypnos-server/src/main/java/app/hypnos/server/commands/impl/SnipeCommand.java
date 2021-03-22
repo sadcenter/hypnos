@@ -92,7 +92,18 @@ public final class SnipeCommand extends Command {
                 }
             }
             case "stop" -> {
-                System.out.println("soon");
+                if (args.length < 2) {
+                    throw new CommandException("Correct usage: snipe stop [nick]");
+                }
+
+                Snipe snipe = user.getSnipe(args[1]);
+                if (snipe == null) {
+                    throw new CommandException("You dont sniping this nickname");
+                }
+
+                user.getSnipes().remove(snipe);
+                user.sendMessage("Sniping stopped", Ansi.Color.GREEN, LogType.INFO);
+
             }
             default -> user.sendMessage("Wrong usage!", Ansi.Color.RED, LogType.ERROR);
         }

@@ -17,7 +17,6 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        Client.INSTANCE.initialize();
     }
 
     @Override
