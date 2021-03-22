@@ -1,6 +1,7 @@
 package app.hypnos.server.threads;
 
 import app.hypnos.server.Server;
+import app.hypnos.server.data.User;
 
 public final class KeepAliveThread extends Thread {
 
@@ -15,7 +16,8 @@ public final class KeepAliveThread extends Thread {
 
     @Override
     public void run() {
-        server.getConnectedChannels().forEach(channel -> {
+        server.getConnectedUsers().stream().map(User::getChannel).forEach(channel -> {
+
             if (server.getKeepAliveCache().getIfPresent(channel) == null) {
                 channel.close();
             }

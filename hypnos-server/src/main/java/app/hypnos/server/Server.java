@@ -2,7 +2,7 @@ package app.hypnos.server;
 
 import app.hypnos.network.packet.storage.PacketStorage;
 import app.hypnos.server.commands.Command;
-import app.hypnos.server.commands.impl.SnipeCommand;
+import app.hypnos.server.commands.impl.*;
 import app.hypnos.server.connection.Connection;
 import app.hypnos.server.data.Snipe;
 import app.hypnos.server.data.User;
@@ -10,10 +10,11 @@ import app.hypnos.server.database.ConverterCodec;
 import app.hypnos.server.database.impl.UserConverterCodec;
 import app.hypnos.server.threads.KeepAliveThread;
 import app.hypnos.server.threads.SaveDataThread;
+import app.hypnos.server.utils.AuthUtil;
+import app.hypnos.type.AccountType;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.ConnectionString;
@@ -32,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Getter
@@ -43,7 +45,7 @@ public class Server {
     private final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private final Set<User> users = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private final Set<Command> commands = Sets.newHashSet(new SnipeCommand());
+    private final Set<Command> commands = Sets.newHashSet(new UnBanCommand(), new SnipeCommand(), new KickClientCommand(), new BanClientCommand(), new ClientsCommand(), new StatsCommand());
 
     private final Cache<Channel, Object> keepAliveCache = Caffeine.newBuilder()
             .expireAfterWrite(3, TimeUnit.SECONDS)
@@ -65,8 +67,12 @@ public class Server {
 
         startMongo(new UserConverterCodec());
 
-       // User e = new User("sadcenter", AuthUtil.generateAuthToken("sadcenter", "xd"), AccountType.ADMIN, new HashSet<>(), new HashSet<>());
-     //   mongoDatabase.getCollection("users", User.class).insertOne(e);
+       // User user = new User("daniulek", AuthUtil.generateAuthToken("daniulek", "daniulek"),
+         //       AccountType.CLIENT,
+           //     new HashSet<>(),
+             //   new HashSet<>());
+
+     //   this.mongoDatabase.getCollection("users", User.class).insertOne(user);
 
         loadDatabase();
 
@@ -79,7 +85,7 @@ public class Server {
 
     private void loadDatabase() {
         mongoDatabase.getCollection("users", User.class).find().forEach(users::add);
-        logger.info("Loaded "+users.size()+" users from database!");
+        logger.info("Loaded " + users.size() + " users from database!");
     }
 
     private void startMongo(ConverterCodec<?>... converters) {
@@ -107,11 +113,15 @@ public class Server {
         return users.stream().filter(user -> user.getAuthToken().equals(token)).findFirst();
     }
 
+    public Optional<User> findByName(String name) {
+        return users.stream().filter(user -> user.getUserName().equals(name)).findFirst();
+    }
+
     public Snipe findSnipe(String name) {
         return users.stream().map(user -> user.getSnipe(name)).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
-    public Set<Channel> getConnectedChannels() {
-        return users.stream().map(User::getChannel).filter(Objects::nonNull).collect(Collectors.toSet());
+    public Set<User> getConnectedUsers() {
+        return users.stream().filter(User::isOnline).collect(Collectors.toSet());
     }
 }

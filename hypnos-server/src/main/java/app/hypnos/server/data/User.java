@@ -21,8 +21,11 @@ public final class User {
     private final Set<Snipe> snipes;
     private final Set<String> logs;
     private String hardwareIdentifier;
+    private Ban ban;
 
     private transient boolean updateRequired;
+    private transient long connectedSince;
+
     private transient Channel channel;
 
     public void sendMessage(String message, Ansi.Color color, LogType logType) {
@@ -46,6 +49,14 @@ public final class User {
 
     public Document getQuery() {
         return new Document("userName", userName);
+    }
+
+    public boolean isOnline() {
+        return channel != null;
+    }
+
+    public boolean isBanned() {
+        return ban != null;
     }
 
 }

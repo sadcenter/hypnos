@@ -9,6 +9,7 @@ import app.hypnos.network.packet.impl.server.ServerMessagePacket;
 import app.hypnos.server.Server;
 import app.hypnos.server.commands.Command;
 import app.hypnos.server.commands.CommandException;
+import app.hypnos.server.data.Ban;
 import app.hypnos.server.data.User;
 import app.hypnos.server.utils.AuthUtil;
 import app.hypnos.server.utils.PacketUtil;
@@ -28,9 +29,8 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
-        System.out.println(packet.getClass().getSimpleName());
-        Channel channel = channelHandlerContext.channel();
 
+        Channel channel = channelHandlerContext.channel();
         User user = Server.INSTANCE.findByChannel(channel);
 
         if (packet instanceof ClientAuthenticatePacket && user != null) {
@@ -39,7 +39,16 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
         }
 
         if (packet instanceof ClientAuthenticatePacket clientAuthenticatePacket) {
+            System.out.println("auth");
             Server.INSTANCE.findByToken(AuthUtil.generateAuthToken(clientAuthenticatePacket.getName(), clientAuthenticatePacket.getPass())).ifPresentOrElse(byToken -> {
+                System.out.println(byToken.isBanned());
+                if (byToken.isBanned()) {
+                    Ban ban = byToken.getBan();
+                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "You are banned! \n ---> Admin: " + ban.getAdmin() + "\n ---> Reason: " + ban.getReason()), ChannelFutureListener.CLOSE);
+                    channel.close();
+                    return;
+                }
+
                 if (byToken.getHardwareIdentifier() == null) {
                     byToken.setHardwareIdentifier(clientAuthenticatePacket.getHash());
                 } else if (!byToken.getHardwareIdentifier().equals(clientAuthenticatePacket.getHash())) {
@@ -51,6 +60,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
                     return;
                 }
 
+                byToken.setConnectedSince(System.currentTimeMillis());
                 byToken.setChannel(channel);
                 PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account: " + byToken.getAccountType().name()));
             }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid login data!"), ChannelFutureListener.CLOSE));

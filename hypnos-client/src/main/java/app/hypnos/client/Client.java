@@ -14,7 +14,6 @@ import lombok.SneakyThrows;
 import org.fusesource.jansi.Ansi;
 
 import java.util.Scanner;
-import java.util.concurrent.Executors;
 
 @Getter
 public final class Client {
@@ -23,6 +22,7 @@ public final class Client {
     public static Client INSTANCE;
     private final PacketStorage packetStorage;
     private final Connection connection;
+    private MessageThread messageThread;
 
     @SneakyThrows
     public Client() {
@@ -43,7 +43,7 @@ public final class Client {
 
         MessageUtil.clear();
 
-        connection = Executors.newCachedThreadPool().submit(() -> new Connection("127.0.0.1", 5482)).get();
+        connection = new Connection("127.0.0.1", 5482);
 
         while (connection.getChannel() == null) {
 
@@ -71,16 +71,24 @@ public final class Client {
 
     @SneakyThrows
     public void initialize() {
-        new MessageThread(this).start();
+        messageThread = new MessageThread(this);
+        messageThread.start();
 
         //  Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
     }
 
+    @SneakyThrows
     public void shutdown() {
         Channel server = connection == null ? null : connection.getChannel();
         if (server != null && server.isOpen()) {
             server.close();
         }
+
+        if (messageThread != null) {
+            messageThread.stop();
+        }
+
+        Thread.sleep(3000L);
         System.exit(0);
     }
 }
