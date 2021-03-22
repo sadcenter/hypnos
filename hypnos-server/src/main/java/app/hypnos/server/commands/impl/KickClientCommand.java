@@ -19,15 +19,13 @@ public final class KickClientCommand extends Command {
     @Override
     public void execute(User user, String... args) throws CommandException {
         if (args.length == 0)
-            throw new CommandException("Corect usage: kick [userName]");
+            throw new CommandException("Correct usage: kick [userName]");
 
         Optional<User> optionalUser = Server.INSTANCE.findByName(args[0]);
 
         optionalUser.ifPresentOrElse(result -> {
             result.getChannel().close();
             user.sendMessage("Kicked " + result.getUserName() + " from session!", Ansi.Color.GREEN, LogType.INFO);
-        }, () -> {
-            user.sendMessage("Provided user dont exists!", Ansi.Color.YELLOW, LogType.WARNING);
-        });
+        }, () -> user.sendMessage("Provided user don't exists!", Ansi.Color.YELLOW, LogType.WARNING));
     }
 }

@@ -60,7 +60,7 @@ public class Connection {
     public void sendToServer(Packet packet) {
         if (channel.isOpen()) {
             channel.writeAndFlush(packet)
-                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+                    .addListener(ChannelFutureListener.CLOSE);
         }
     }
 }

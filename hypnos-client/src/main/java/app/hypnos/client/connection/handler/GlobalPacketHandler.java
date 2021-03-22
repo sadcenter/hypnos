@@ -1,6 +1,5 @@
 package app.hypnos.client.connection.handler;
 
-import app.hypnos.client.Client;
 import app.hypnos.network.packet.Packet;
 import app.hypnos.network.packet.impl.server.ServerAuthenticationResponsePacket;
 import app.hypnos.network.packet.impl.server.ServerDisconnectPacket;
@@ -12,10 +11,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.fusesource.jansi.Ansi;
 
 public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
@@ -34,12 +29,12 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        Client.INSTANCE.shutdown();
+    public void channelInactive(ChannelHandlerContext channelHandlerContext) {
+        System.exit(-1);
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        Client.INSTANCE.shutdown();
+    public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) {
+        System.exit(-1);
     }
 }

@@ -8,7 +8,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>hypnos-client</artifactId>
     <build>
         <plugins>
@@ -36,17 +35,15 @@
             </plugin>
         </plugins>
     </build>
-
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>LATEST</version>
+            <version>5.6.0</version>
         </dependency>
 
         <dependency>
@@ -54,12 +51,11 @@
             <artifactId>hypnos-lib</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.12.0</version>
         </dependency>
-
     </dependencies>
-
 </project>
