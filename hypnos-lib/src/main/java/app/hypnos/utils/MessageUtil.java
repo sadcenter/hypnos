@@ -33,7 +33,7 @@ public final class MessageUtil {
                 | '_ \\ | | | || '_ \\ | '_ \\  / _ \\ / __|
                 | | | || |_| || |_) || | | || (_) |\\__ \\
                 |_| |_| \\__, || .__/ |_| |_| \\___/ |___/
-                        |___/ |_|                      \s""".indent(30)).reset());
+                        |___/ |_|                      \s""".indent(38)).reset());
         for (int i = 0; i < 8; i++) {
             System.out.println(" ");
         }

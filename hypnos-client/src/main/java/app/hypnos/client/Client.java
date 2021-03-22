@@ -39,8 +39,6 @@ public final class Client {
 
         MessageUtil.clear();
 
-        Scanner scanner = new Scanner(System.in);
-
         String ip;
         int port;
 
@@ -57,7 +55,7 @@ public final class Client {
         JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
 
         if (jsonObject.get("version").getAsInt() != VERSION) {
-            MessageUtil.sendMessage("Install new client version!", Ansi.Color.CYAN, LogType.INFO, true);
+            MessageUtil.sendMessage("Install new client version!", Ansi.Color.YELLOW, LogType.INFO, true);
             Thread.sleep(4000L);
             shutdown();
             return;
@@ -66,6 +64,7 @@ public final class Client {
         ip = jsonObject.get("ip").getAsString();
         port = jsonObject.get("port").getAsInt();
 
+        Scanner scanner = new Scanner(System.in);
 
         MessageUtil.sendMessage("Username: ", Ansi.Color.CYAN, LogType.INFO, false);
         String userName = scanner.nextLine();
@@ -109,12 +108,12 @@ public final class Client {
     public void initialize() {
         messageThread = new MessageThread(this);
         messageThread.start();
-        Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
+
+        //Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
     }
 
     @SneakyThrows
     public void shutdown() {
-        MessageUtil.sendMessage("Shutting down...", Ansi.Color.CYAN);
         Channel server = connection == null ? null : connection.getChannel();
         if (server != null && server.isOpen()) {
             server.close();

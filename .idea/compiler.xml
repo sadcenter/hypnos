@@ -13,5 +13,8 @@
         <module name="hypnos-lib" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="hypnos-installer" target="15" />
+    </bytecodeTargetLevel>
   </component>
 </project>

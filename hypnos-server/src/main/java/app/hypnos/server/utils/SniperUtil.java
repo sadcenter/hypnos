@@ -29,6 +29,10 @@ public final class SniperUtil {
             .expireAfterWrite(15, TimeUnit.SECONDS)
             .build(snipe -> getAuthTokenUncached(snipe.getUserName(), snipe.getPassword()));
 
+    private static final LoadingCache<String, Integer> viewsCache = Caffeine.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .build(SniperUtil::getViewsUncached);
+
 
     @SneakyThrows
     private static String getAuthTokenUncached(String userName, String password) {
@@ -96,9 +100,13 @@ public final class SniperUtil {
     }
 
     @SneakyThrows
-    public static int getViews(String name) {
+    private static int getViewsUncached(String name) {
         return Unirest.get("https://api.nathan.cx/searches/" + name)
                 .asJsonAsync().get().getBody().getObject().getInt("searches");
+    }
+
+    public static int getViews(String name) {
+        return viewsCache.get(name);
     }
 
     @SneakyThrows
@@ -109,23 +117,28 @@ public final class SniperUtil {
 
         int status = authorization.getStatus();
 
+        System.out.println(authorization.getBody().toPrettyString());
+
         String message;
         if (status == 403) {
-            message = " not available yet ;/";
+            if (getUniqueId(snipe.getName()) != null) {
+                message = "Someone other changed name!";
+                user.getSnipes().remove(snipe);
+                user.setUpdateRequired(true);
+            } else {
+                message = " not available yet ;/";
+            }
         } else if (status == 401) {
             message = "Unauthorized (Maybe you provided wrong login data)";
         } else if (status == 200) {
             message = "Changed name (" + snipe.getName() + ")";
             user.getSnipes().remove(snipe);
             user.setSuccessSnipes(user.getSuccessSnipes() + 1);
+            user.setUpdateRequired(true);
         } else {
             message = authorization.getStatusText();
         }
 
-        if (getUniqueId(snipe.getName()) != null) {
-            message = "Someone other changed name!";
-            user.getSnipes().remove(snipe);
-        }
 
         message = message + " [" + new Date().toString() + "] ";
 

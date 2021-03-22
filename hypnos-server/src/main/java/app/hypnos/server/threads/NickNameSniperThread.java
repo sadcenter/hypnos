@@ -4,26 +4,24 @@ import app.hypnos.server.Server;
 import app.hypnos.server.data.Snipe;
 import app.hypnos.server.data.User;
 import app.hypnos.server.utils.SniperUtil;
-import lombok.SneakyThrows;
+import com.google.common.util.concurrent.AbstractScheduledService;
 
-public final class NickNameSniperThread extends Thread {
+import java.util.concurrent.TimeUnit;
+
+public final class NickNameSniperThread extends AbstractScheduledService {
 
     private final Server server;
 
     public NickNameSniperThread(Server server) {
         this.server = server;
-
-        setDaemon(true);
-        setName("sniper");
     }
 
     @Override
-    @SneakyThrows
-    public void run() {
+    protected void runOneIteration() throws Exception {
         for (User user : this.server.getUsers()) {
             for (Snipe snipe : user.getSnipes()) {
                 String authToken = SniperUtil.getAuthToken(snipe.getAccount());
-                if (snipe.getAccessTime() - 1500 <= System.currentTimeMillis()) {
+                if (snipe.getAccessTime() - 1800 <= System.currentTimeMillis()) {
                     for (int i = 0; i < 5; i++) {
                         SniperUtil.changeName(user, snipe, authToken);
                     }
@@ -31,9 +29,10 @@ public final class NickNameSniperThread extends Thread {
                 }
             }
         }
+    }
 
-        Thread.sleep(10L);
-
-        run();
+    @Override
+    protected Scheduler scheduler() {
+        return Scheduler.newFixedDelaySchedule(0L, 1, TimeUnit.MILLISECONDS);
     }
 }

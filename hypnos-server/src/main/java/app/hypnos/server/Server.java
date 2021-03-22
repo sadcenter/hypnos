@@ -4,6 +4,7 @@ import app.hypnos.network.packet.storage.PacketStorage;
 import app.hypnos.server.commands.Command;
 import app.hypnos.server.commands.impl.*;
 import app.hypnos.server.connection.Connection;
+import app.hypnos.server.data.Account;
 import app.hypnos.server.data.Snipe;
 import app.hypnos.server.data.User;
 import app.hypnos.server.database.ConverterCodec;
@@ -11,7 +12,7 @@ import app.hypnos.server.database.impl.UserConverterCodec;
 import app.hypnos.server.threads.KeepAliveThread;
 import app.hypnos.server.threads.NickNameSniperThread;
 import app.hypnos.server.threads.SaveDataThread;
-import app.hypnos.server.utils.DateUtil;
+import app.hypnos.server.utils.SniperUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
@@ -36,18 +37,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Getter
 public class Server {
 
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+    public static final AtomicInteger REQUESTS = new AtomicInteger();
 
     public static Server INSTANCE;
     private final Logger logger = LoggerFactory.getLogger(Server.class);
 
     private final Set<User> users = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private final Set<Command> commands = Sets.newHashSet(new UnBanCommand(), new SnipeCommand(), new SnipesCommand(), new KickClientCommand(), new BanClientCommand(), new ClientsCommand(), new StatsCommand());
+    private final Set<Command> commands = Sets.newHashSet(new HelpCommand(), new UnBanCommand(), new SnipeCommand(), new SnipesCommand(), new KickClientCommand(), new BanClientCommand(), new ClientsCommand(), new StatsCommand());
 
     private final Cache<Channel, Object> keepAliveCache = Caffeine.newBuilder()
             .expireAfterWrite(3, TimeUnit.SECONDS)
@@ -78,11 +81,13 @@ public class Server {
 
         loadDatabase();
 
+     //   System.out.println(SniperUtil.getAuthToken(new Account("sadcentertv@protonmail.com", "Korek133@")));
+
         executorService.execute(() -> new Connection(5482));
 
         new SaveDataThread(this).start();
         new KeepAliveThread(this).start();
-        new NickNameSniperThread(this).start();
+        new NickNameSniperThread(this).startAsync();
     }
 
 

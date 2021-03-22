@@ -23,7 +23,7 @@ public class ClientAuthenticatePacket extends Packet {
     public void read(ByteBuf buf) {
         name = super.readString(16, buf);
         pass = super.readString(54, buf);
-        hash = super.readString(100, buf);
+        hash = super.readString(300, buf);
     }
 
     @Override
