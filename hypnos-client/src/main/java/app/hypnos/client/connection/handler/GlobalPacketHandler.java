@@ -11,8 +11,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.fusesource.jansi.Ansi;
 
-import java.util.ArrayDeque;
-
 public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override

@@ -2,6 +2,7 @@ package app.hypnos.client;
 
 import app.hypnos.client.commands.KeepAliveThread;
 import app.hypnos.client.commands.MessageThread;
+import app.hypnos.client.commands.ShutdownThread;
 import app.hypnos.client.connection.Connection;
 import app.hypnos.client.utils.HardwareUtil;
 import app.hypnos.network.packet.impl.client.ClientAuthenticatePacket;
@@ -25,14 +26,11 @@ import java.util.Scanner;
 public final class Client {
 
     public static final Thread MAIN_THREAD = Thread.currentThread();
+    private static final int VERSION = 31;
     public static Client INSTANCE;
-
     private PacketStorage packetStorage;
     private Connection connection;
     private MessageThread messageThread;
-
-
-    private static final int VERSION = 31;
 
     @SneakyThrows
     public Client() {
@@ -104,26 +102,26 @@ public final class Client {
 
 
     public void authenticate(String userName, String password) {
-        connection.getChannel().writeAndFlush(new ClientAuthenticatePacket(userName, password, HardwareUtil.generateHardwareHash()));
+        connection.sendToServer(new ClientAuthenticatePacket(userName, password, HardwareUtil.generateHardwareHash()));
     }
 
     @SneakyThrows
     public void initialize() {
         messageThread = new MessageThread(this);
         messageThread.start();
-
-        //  Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
+        Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
     }
 
     @SneakyThrows
     public void shutdown() {
+        MessageUtil.sendMessage("Shutting down...", Ansi.Color.CYAN);
         Channel server = connection == null ? null : connection.getChannel();
         if (server != null && server.isOpen()) {
             server.close();
         }
 
         if (messageThread != null) {
-            messageThread.stop();
+            messageThread.interrupt(); // Close the Thread
         }
 
         Thread.sleep(3000L);

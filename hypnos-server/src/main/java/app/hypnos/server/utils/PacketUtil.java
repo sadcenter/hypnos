@@ -10,10 +10,7 @@ import org.fusesource.jansi.Ansi;
 public class PacketUtil {
 
     public static void close(Channel channel, String reason, Ansi.Color color) {
-        if (channel.isOpen()) {
-            channel.writeAndFlush(new ServerDisconnectPacket(reason, color, LogType.DISCONNECTED))
-                    .addListener(ChannelFutureListener.CLOSE);
-        }
+        sendPacket(channel, new ServerDisconnectPacket(reason, color, LogType.DISCONNECTED), ChannelFutureListener.CLOSE);
     }
 
     public static void sendPacket(Channel channel, Packet packet) {

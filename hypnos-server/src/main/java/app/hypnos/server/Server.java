@@ -1,6 +1,5 @@
 package app.hypnos.server;
 
-import app.hypnos.network.packet.impl.server.ServerMessagePacket;
 import app.hypnos.network.packet.storage.PacketStorage;
 import app.hypnos.server.commands.Command;
 import app.hypnos.server.commands.impl.*;
@@ -10,12 +9,7 @@ import app.hypnos.server.data.User;
 import app.hypnos.server.database.ConverterCodec;
 import app.hypnos.server.database.impl.UserConverterCodec;
 import app.hypnos.server.threads.KeepAliveThread;
-import app.hypnos.server.threads.NickNameSniperThread;
 import app.hypnos.server.threads.SaveDataThread;
-import app.hypnos.server.utils.PacketUtil;
-import app.hypnos.server.utils.SniperUtil;
-import app.hypnos.utils.MessageUtil;
-import app.hypnos.utils.logging.LogType;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
@@ -29,11 +23,13 @@ import io.netty.channel.Channel;
 import lombok.Getter;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,16 +67,19 @@ public class Server {
 
         startMongo(new UserConverterCodec());
 
-        //   this.mongoDatabase.getCollection("users", User.class).insertOne(user);
+        // User user = new User("daniulek", AuthUtil.generateAuthToken("daniulek", "daniulek"),
+        //       AccountType.CLIENT,
+        //     new HashSet<>(),
+        //   new HashSet<>());
+
+        //        this.mongoDatabase.getCollection("users", User.class).insertOne(user);
 
         loadDatabase();
-
 
         executorService.execute(() -> new Connection(5482));
 
         new SaveDataThread(this).start();
         new KeepAliveThread(this).start();
-        new NickNameSniperThread(this).start();
     }
 
 
@@ -120,14 +119,6 @@ public class Server {
 
     public Snipe findSnipe(String name) {
         return users.stream().map(user -> user.getSnipe(name)).filter(Objects::nonNull).findFirst().orElse(null);
-    }
-
-    public void broadcast(String name) {
-        getConnectedUsers().forEach(user -> {
-            PacketUtil.sendPacket(user.getChannel(), new ServerMessagePacket(name, Ansi.Color.CYAN, LogType.BROADCAST));
-        });
-
-        MessageUtil.sendMessage(name, Ansi.Color.CYAN, LogType.BROADCAST, true);
     }
 
     public Set<User> getConnectedUsers() {

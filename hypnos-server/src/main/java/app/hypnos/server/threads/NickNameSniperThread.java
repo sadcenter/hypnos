@@ -16,14 +16,6 @@ import java.util.concurrent.TimeUnit;
 public final class NickNameSniperThread extends Thread {
 
     private final Server server;
-
-    public NickNameSniperThread(Server server) {
-        this.server = server;
-
-        setDaemon(true);
-        setName("sniper");
-    }
-
     private final LoadingCache<Snipe, String> loadingCache = Caffeine.newBuilder()
             .expireAfterWrite(3, TimeUnit.SECONDS)
             .build(new CacheLoader<>() {
@@ -32,6 +24,13 @@ public final class NickNameSniperThread extends Thread {
                     return SniperUtil.getAuthToken(snipe.getAccount().getUserName(), snipe.getAccount().getPassword());
                 }
             });
+
+    public NickNameSniperThread(Server server) {
+        this.server = server;
+
+        setDaemon(true);
+        setName("sniper");
+    }
 
     @SneakyThrows
     @Override

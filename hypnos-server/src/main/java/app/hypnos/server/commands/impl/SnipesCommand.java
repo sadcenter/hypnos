@@ -29,12 +29,10 @@ public final class SnipesCommand extends Command {
             }
 
             user.sendMessage("User " + target.getUserName(), Ansi.Color.GREEN, LogType.INFO);
-            snipes.forEach(snipe -> {
-                user.sendMessage(" ---> Sniping " + snipe.getName() + " (scheduled at "
-                                + DateUtil.getDate(snipe.getAccessTime())
-                                + ", left: " + DateUtil.timeToString(snipe.getAccessTime() - System.currentTimeMillis()) + ")",
-                        Ansi.Color.MAGENTA, LogType.INFO);
-            });
+            snipes.forEach(snipe -> user.sendMessage(" ---> Sniping " + snipe.getName() + " (scheduled at "
+                                                 + DateUtil.getDate(snipe.getAccessTime())
+                                                 + ", left: " + DateUtil.timeToString(snipe.getAccessTime() - System.currentTimeMillis()) + ")",
+                    Ansi.Color.MAGENTA, LogType.INFO));
 
         });
     }

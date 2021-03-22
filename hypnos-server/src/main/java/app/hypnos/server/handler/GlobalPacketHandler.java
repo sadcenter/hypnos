@@ -7,7 +7,6 @@ import app.hypnos.network.packet.impl.client.ClientKeepAlivePacket;
 import app.hypnos.network.packet.impl.server.ServerAuthenticationResponsePacket;
 import app.hypnos.network.packet.impl.server.ServerMessagePacket;
 import app.hypnos.server.Server;
-import app.hypnos.server.commands.Command;
 import app.hypnos.server.commands.CommandException;
 import app.hypnos.server.data.Ban;
 import app.hypnos.server.data.User;
@@ -21,7 +20,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.fusesource.jansi.Ansi;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
@@ -29,15 +27,12 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
-
         Channel channel = channelHandlerContext.channel();
         User user = Server.INSTANCE.findByChannel(channel);
-
         if (packet instanceof ClientAuthenticatePacket && user != null) {
             channel.close();
             return;
         }
-
         if (packet instanceof ClientAuthenticatePacket clientAuthenticatePacket) {
             Server.INSTANCE.findByToken(AuthUtil.generateAuthToken(clientAuthenticatePacket.getName(), clientAuthenticatePacket.getPass())).ifPresentOrElse(byToken -> {
                 if (byToken.isBanned()) {
@@ -49,17 +44,17 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
                 if (byToken.getHardwareIdentifier() == null) {
                     byToken.setHardwareIdentifier(clientAuthenticatePacket.getHash());
                 } else if (!byToken.getHardwareIdentifier().equals(clientAuthenticatePacket.getHash())) {
-                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid HWID (Contact administrator)!"), ChannelFutureListener.CLOSE);
+                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid Hardware ID (Contact administrator)!"), ChannelFutureListener.CLOSE);
                     return;
                 }
                 if (byToken.getChannel() != null) {
-                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "User already loggged " + clientAuthenticatePacket.getName()), ChannelFutureListener.CLOSE);
+                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "User already logged " + clientAuthenticatePacket.getName()), ChannelFutureListener.CLOSE);
                     return;
                 }
 
                 byToken.setConnectedSince(System.currentTimeMillis());
                 byToken.setChannel(channel);
-                PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account: " + byToken.getAccountType().name()));
+                PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account Type: " + byToken.getAccountType().name()));
             }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid login data!"), ChannelFutureListener.CLOSE));
 
 
@@ -67,11 +62,9 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
             String[] split = clientCommandPacket.getCommand().split(" ");
 
             String commandName = split[0];
-            Optional<Command> optionalCommand = Server.INSTANCE.getCommands().stream().filter(cmd -> cmd.getName().equals(commandName) || cmd.getAliases().contains(commandName)).findFirst();
-
-            optionalCommand.ifPresentOrElse(command -> {
+            Server.INSTANCE.getCommands().stream().filter(cmd -> cmd.getName().equals(commandName) || cmd.getAliases().contains(commandName)).findFirst().ifPresentOrElse(command -> {
                 if (!user.getAccountType().can(command.getPermission())) {
-                    channel.writeAndFlush(new ServerMessagePacket("You dont have access to " + command.getPermission() + " rank.", Ansi.Color.RED, LogType.INFO));
+                    PacketUtil.sendPacket(channel, new ServerMessagePacket("You don't have access to " + command.getPermission() + " rank.", Ansi.Color.RED, LogType.INFO));
                     return;
                 }
                 try {
@@ -79,13 +72,12 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
                 } catch (CommandException exception) {
                     user.sendMessage(exception.getMessage(), Ansi.Color.YELLOW, LogType.WARNING);
                 }
-            }, () -> {
-                channel.writeAndFlush(new ServerMessagePacket("This command doesn't exists!", Ansi.Color.RED, LogType.INFO));
-            });
-
+            }, () -> PacketUtil.sendPacket(channel, new ServerMessagePacket("This command doesn't exists!", Ansi.Color.RED, LogType.INFO)));
         } else if (packet instanceof ClientKeepAlivePacket) {
             if (user == null) {
-                channel.close();
+                if (channel.isOpen()) {
+                    channel.close();
+                }
                 return;
             }
 
@@ -95,7 +87,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+        cause.printStackTrace(); // temporarily
         Channel channel = ctx.channel();
         if (channel.isOpen()) {
             channel.close();
@@ -106,7 +98,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelInactive(ChannelHandlerContext ctx) {
         User user = Server.INSTANCE.findByChannel(ctx.channel());
         if (user != null) {
-            if(user.isUpdateRequired()) {
+            if (user.isUpdateRequired()) {
                 Server.INSTANCE.getMongoDatabase().getCollection("users", User.class).replaceOne(user.getQuery(), user);
             }
             user.setChannel(null);
