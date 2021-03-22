@@ -32,6 +32,6 @@ public final class BanClientCommand extends Command {
             }
             toBan.setUpdateRequired(true);
             user.sendMessage("User banned!", Ansi.Color.GREEN, LogType.INFO);
-        }, () -> user.sendMessage("This user dont exists!", Ansi.Color.YELLOW, LogType.WARNING));
+        }, () -> user.sendMessage("This user don't exists!", Ansi.Color.YELLOW, LogType.WARNING));
     }
 }

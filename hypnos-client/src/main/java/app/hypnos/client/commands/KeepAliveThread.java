@@ -20,12 +20,12 @@ public final class KeepAliveThread extends Thread {
             if (Client.INSTANCE.getConnection().getChannel().isOpen()) {
                 Client.INSTANCE.getConnection().sendToServer(new ClientKeepAlivePacket());
             } else {
-                client.shutdown();
+                System.exit(-1);
             }
 
             Thread.sleep(3000L);
         } catch (Exception exception) {
-            client.shutdown();
+            System.exit(-1);
         }
 
         run();

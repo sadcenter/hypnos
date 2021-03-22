@@ -104,7 +104,7 @@ public final class SnipeCommand extends Command {
 
                 Snipe snipe = user.getSnipe(args[1]);
                 if (snipe == null) {
-                    throw new CommandException("You dont sniping this nickname");
+                    throw new CommandException("You don't sniping this nickname");
                 }
 
                 user.getSnipes().remove(snipe);

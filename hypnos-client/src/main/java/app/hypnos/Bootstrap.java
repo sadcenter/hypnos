@@ -8,7 +8,7 @@ public final class Bootstrap {
 
     public static void main(String[] args) {
         if (!Platform.isWindows()) {
-            System.out.println("Sorry :( We dont support other os than Window");
+            System.out.println("Sorry :( We don't support other os than Window");
             return;
         }
 
