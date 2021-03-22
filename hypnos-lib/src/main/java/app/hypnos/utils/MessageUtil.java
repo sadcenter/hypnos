@@ -18,15 +18,17 @@ public final class MessageUtil {
         }
     }
 
+
     public static void clear() {
         System.out.println(Ansi.ansi().eraseScreen().reset());
-        System.out.println(Ansi.ansi().fg(Ansi.Color.MAGENTA).a(" _                                      \n" +
-                "| |__   _   _  _ __   _ __    ___   ___ \n" +
-                "| '_ \\ | | | || '_ \\ | '_ \\  / _ \\ / __|\n" +
-                "| | | || |_| || |_) || | | || (_) |\\__ \\\n" +
-                "|_| |_| \\__, || .__/ |_| |_| \\___/ |___/\n" +
-                "        |___/ |_|                       ").reset());
-        for (int i = 0; i < 10; i++) {
+        System.out.println(Ansi.ansi().fg(Ansi.Color.MAGENTA).a("""
+                 _                                     \s
+                | |__   _   _  _ __   _ __    ___   ___\s
+                | '_ \\ | | | || '_ \\ | '_ \\  / _ \\ / __|
+                | | | || |_| || |_) || | | || (_) |\\__ \\
+                |_| |_| \\__, || .__/ |_| |_| \\___/ |___/
+                        |___/ |_|                      \s""").reset());
+        for (int i = 0; i < 8; i++) {
             System.out.println(" ");
         }
     }

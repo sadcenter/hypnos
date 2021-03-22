@@ -22,7 +22,7 @@ public final class NickNameSniperThread extends Thread {
     public void run() {
         this.server.getUsers().forEach(user -> {
             user.getSnipes().forEach(snipe -> {
-                if (snipe.accessTime() - TimeUnit.SECONDS.toMillis(2) >= System.currentTimeMillis()) {
+                if (snipe.getAccessTime() - TimeUnit.SECONDS.toMillis(2) >= System.currentTimeMillis()) {
                     for (int i = 0; i < 20; i++) {
                         SniperUtil.changeName(user, snipe);
                     }

@@ -30,11 +30,19 @@ public final class SnipeCommand extends Command {
 
         switch (type.toLowerCase(Locale.ROOT)) {
             case "start" -> {
+                if (user.getAccountType().getMaxSnipes() > -1 && user.getSnipes().size() >= user.getAccountType().getMaxSnipes()) {
+                    throw new CommandException("For you snipe limit is " + user.getAccountType().getMaxSnipes());
+                }
+
                 if (args.length < 4) {
                     throw new CommandException("Correct usage: snipe [start] [nick] [username:password] [old owner]");
                 }
 
                 String snipe = args[1];
+
+                if (SniperUtil.getUniqueId(snipe) != null) {
+                    throw new CommandException("This name is already taken.");
+                }
 
                 if (Server.INSTANCE.findSnipe(snipe) != null) {
                     throw new CommandException("This name is already sniping!");
@@ -67,7 +75,6 @@ public final class SnipeCommand extends Command {
                 user.sendMessage("Started sniping " + snipe + ". Access time: "
                                 + DateUtil.getDate(accessTime) + " (left: " + DateUtil.timeToString(accessTime - System.currentTimeMillis()) + ")",
                         Ansi.Color.GREEN, LogType.INFO);
-                break;
             }
             case "list" -> {
                 user.sendMessage("Printing your snipes...", Ansi.Color.CYAN, LogType.INFO);
@@ -76,18 +83,16 @@ public final class SnipeCommand extends Command {
                     user.sendMessage("Your snipes are empty!", Ansi.Color.YELLOW, LogType.INFO);
                 } else {
                     user.getSnipes().forEach(snipe -> {
-                        user.sendMessage("Sniping: " + snipe.name() + " (scheduled at "
-                                        + DateUtil.getDate(snipe.accessTime())
-                                        + ", left: " + DateUtil.timeToString(snipe.accessTime() - System.currentTimeMillis()) + ")",
+                        user.sendMessage("Sniping: " + snipe.getName() + " (scheduled at "
+                                        + DateUtil.getDate(snipe.getAccessTime())
+                                        + ", left: " + DateUtil.timeToString(snipe.getAccessTime() - System.currentTimeMillis()) + ")",
                                 Ansi.Color.GREEN,
                                 LogType.INFO);
                     });
                 }
-                break;
             }
             case "stop" -> {
                 System.out.println("soon");
-                break;
             }
             default -> user.sendMessage("Wrong usage!", Ansi.Color.RED, LogType.ERROR);
         }

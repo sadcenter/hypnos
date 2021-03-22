@@ -12,7 +12,6 @@ import app.hypnos.server.commands.CommandException;
 import app.hypnos.server.data.User;
 import app.hypnos.server.utils.AuthUtil;
 import app.hypnos.server.utils.PacketUtil;
-import app.hypnos.type.AuthResponseType;
 import app.hypnos.utils.logging.LogType;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -44,12 +43,17 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
                 if (byToken.getHardwareIdentifier() == null) {
                     byToken.setHardwareIdentifier(clientAuthenticatePacket.getHash());
                 } else if (!byToken.getHardwareIdentifier().equals(clientAuthenticatePacket.getHash())) {
-                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(AuthResponseType.ERROR, "Invalid HWID (Contact administrator)!"), ChannelFutureListener.CLOSE);
+                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid HWID (Contact administrator)!"), ChannelFutureListener.CLOSE);
+                    return;
+                }
+                if (byToken.getChannel() != null) {
+                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "User already loggged " + clientAuthenticatePacket.getName()), ChannelFutureListener.CLOSE);
+                    return;
                 }
 
                 byToken.setChannel(channel);
-                PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(AuthResponseType.SUCCESS, byToken.getUserName() + ":" + byToken.getAccountType()));
-            }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(AuthResponseType.ERROR, "Invalid login data!"), ChannelFutureListener.CLOSE));
+                PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account: " + byToken.getAccountType().name()));
+            }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid login data!"), ChannelFutureListener.CLOSE));
 
 
         } else if (packet instanceof ClientCommandPacket clientCommandPacket) {
@@ -75,7 +79,6 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
         } else if (packet instanceof ClientKeepAlivePacket) {
             if (user == null) {
                 channel.close();
-                System.out.println("disconnecting, bye2!!");
                 return;
             }
 

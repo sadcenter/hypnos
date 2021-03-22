@@ -13,6 +13,7 @@ import app.hypnos.server.threads.SaveDataThread;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.ConnectionString;
@@ -26,10 +27,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -67,8 +65,8 @@ public class Server {
 
         startMongo(new UserConverterCodec());
 
-        // User e = new User("sadcenter", AuthUtil.generateAuthToken("sadcenter", "xd"), AccountType.ADMIN, new HashSet<>(), new HashSet<>());
-        //   mongoDatabase.getCollection("users", User.class).insertOne(e);
+       // User e = new User("sadcenter", AuthUtil.generateAuthToken("sadcenter", "xd"), AccountType.ADMIN, new HashSet<>(), new HashSet<>());
+     //   mongoDatabase.getCollection("users", User.class).insertOne(e);
 
         loadDatabase();
 
@@ -81,7 +79,7 @@ public class Server {
 
     private void loadDatabase() {
         mongoDatabase.getCollection("users", User.class).find().forEach(users::add);
-        logger.info("Loaded " + users.size() + " users from database!");
+        logger.info("Loaded "+users.size()+" users from database!");
     }
 
     private void startMongo(ConverterCodec<?>... converters) {

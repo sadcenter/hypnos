@@ -83,8 +83,8 @@ public final class SniperUtil {
     }
 
     public static void changeName(User user, Snipe snipe) {
-        HttpResponse<JsonNode> authorization = Unirest.get("https://api.minecraftservices.com/minecraft/profile/name/" + snipe.name())
-                .header("Authorization", "Bearer " + getAuthToken(snipe.account().userName(), snipe.account().password()))
+        HttpResponse<JsonNode> authorization = Unirest.get("https://api.minecraftservices.com/minecraft/profile/name/" + snipe.getName())
+                .header("Authorization", "Bearer " + getAuthToken(snipe.getAccount().getUserName(), snipe.getAccount().getPassword()))
                 .asJson();
 
         int status = authorization.getStatus();
@@ -95,12 +95,12 @@ public final class SniperUtil {
         } else if (status == 401) {
             message = "Unauthorized";
         } else if (status == 200) {
-            message = "Changed name (" + snipe.name() + ")";
+            message = "Changed name (" + snipe.getName() + ")";
         } else {
             message = authorization.getStatusText();
         }
 
-        user.sendMessage("[" + snipe.name() + "] " + message, Ansi.Color.MAGENTA, LogType.INFO);
+        user.sendMessage("[" + snipe.getName() + "] " + message, Ansi.Color.MAGENTA, LogType.INFO);
         user.getLogs().add(message);
         user.setUpdateRequired(true);
     }

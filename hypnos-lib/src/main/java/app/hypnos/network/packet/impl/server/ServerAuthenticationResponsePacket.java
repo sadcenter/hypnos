@@ -1,7 +1,6 @@
 package app.hypnos.network.packet.impl.server;
 
 import app.hypnos.network.packet.Packet;
-import app.hypnos.type.AuthResponseType;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ServerAuthenticationResponsePacket extends Packet {
 
-    private AuthResponseType responseType;
+    private boolean successful;
     private String additionalInformation;
 
     {
@@ -21,13 +20,13 @@ public class ServerAuthenticationResponsePacket extends Packet {
 
     @Override
     public void read(ByteBuf buf) {
-        responseType = AuthResponseType.values()[responseType.ordinal()];
+        successful = super.readBoolean(buf);
         additionalInformation = super.readString(500, buf);
     }
 
     @Override
     public void write(ByteBuf buf) {
-        buf.writeInt(responseType.ordinal());
+        buf.writeBoolean(successful);
         super.writeString(buf, additionalInformation);
     }
 }

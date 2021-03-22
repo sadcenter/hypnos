@@ -41,6 +41,10 @@ public abstract class Packet {
         return string;
     }
 
+    public boolean readBoolean(ByteBuf byteBuf) {
+        return byteBuf.readBoolean();
+    }
+
     public void writeString(ByteBuf byteBuf, String string) {
         writeByteArray(byteBuf, string.getBytes(StandardCharsets.UTF_8));
     }

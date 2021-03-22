@@ -14,6 +14,7 @@ import lombok.SneakyThrows;
 import org.fusesource.jansi.Ansi;
 
 import java.util.Scanner;
+import java.util.concurrent.Executors;
 
 @Getter
 public final class Client {
@@ -42,12 +43,11 @@ public final class Client {
 
         MessageUtil.clear();
 
-        connection = new Connection("127.0.0.1", 5482);
+        connection = Executors.newCachedThreadPool().submit(() -> new Connection("127.0.0.1", 5482)).get();
 
         while (connection.getChannel() == null) {
 
         }
-
 
         authenticate(userName, password);
 
@@ -66,7 +66,6 @@ public final class Client {
 
 
     public void authenticate(String userName, String password) {
-        System.out.println("sending auth");
         connection.getChannel().writeAndFlush(new ClientAuthenticatePacket(userName, password, HardwareUtil.generateHardwareHash()));
     }
 

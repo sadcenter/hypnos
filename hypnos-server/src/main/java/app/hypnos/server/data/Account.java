@@ -1,5 +1,11 @@
 package app.hypnos.server.data;
 
-public final record Account(String userName, String password) {
+import lombok.Data;
+
+@Data
+public final class Account {
+
+    private final String userName;
+    private final String password;
 
 }
