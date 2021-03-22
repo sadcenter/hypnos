@@ -11,27 +11,27 @@ import org.fusesource.jansi.Ansi;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServerMessagePacket extends Packet {
+public class ServerDisconnectPacket extends Packet {
 
-    private String message;
+    private String reason;
     private Ansi.Color ansiColor;
     private LogType logType;
 
     {
-        super.setId((byte) 2);
+        super.setId((byte) 4);
     }
 
     @Override
     public void read(ByteBuf buf) {
         logType = LogType.values()[buf.readInt()];
         ansiColor = Ansi.Color.values()[buf.readInt()];
-        message = super.readString(400, buf);
+        reason = super.readString(400, buf);
     }
 
     @Override
     public void write(ByteBuf buf) {
         buf.writeInt(logType.ordinal());
         buf.writeInt(ansiColor.ordinal());
-        super.writeString(buf, message);
+        super.writeString(buf, reason);
     }
 }

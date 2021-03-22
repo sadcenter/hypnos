@@ -4,14 +4,18 @@ import app.hypnos.network.packet.Packet;
 import app.hypnos.network.packet.impl.client.ClientAuthenticatePacket;
 import app.hypnos.network.packet.impl.client.ClientCommandPacket;
 import app.hypnos.network.packet.impl.client.ClientKeepAlivePacket;
+import app.hypnos.network.packet.impl.server.ServerAuthenticationResponsePacket;
 import app.hypnos.network.packet.impl.server.ServerMessagePacket;
 import app.hypnos.server.Server;
 import app.hypnos.server.commands.Command;
 import app.hypnos.server.commands.CommandException;
 import app.hypnos.server.data.User;
 import app.hypnos.server.utils.AuthUtil;
+import app.hypnos.server.utils.PacketUtil;
+import app.hypnos.type.AuthResponseType;
 import app.hypnos.utils.logging.LogType;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.fusesource.jansi.Ansi;
@@ -25,29 +29,27 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
+        System.out.println(packet.getClass().getSimpleName());
         Channel channel = channelHandlerContext.channel();
 
         User user = Server.INSTANCE.findByChannel(channel);
 
         if (packet instanceof ClientAuthenticatePacket && user != null) {
             channel.close();
-            System.out.println("dis");
             return;
         }
 
         if (packet instanceof ClientAuthenticatePacket clientAuthenticatePacket) {
-            System.out.println("receivewdx");
             Server.INSTANCE.findByToken(AuthUtil.generateAuthToken(clientAuthenticatePacket.getName(), clientAuthenticatePacket.getPass())).ifPresentOrElse(byToken -> {
                 if (byToken.getHardwareIdentifier() == null) {
                     byToken.setHardwareIdentifier(clientAuthenticatePacket.getHash());
                 } else if (!byToken.getHardwareIdentifier().equals(clientAuthenticatePacket.getHash())) {
-                    channel.close();
+                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(AuthResponseType.ERROR, "Invalid HWID (Contact administrator)!"), ChannelFutureListener.CLOSE);
                 }
 
-
                 byToken.setChannel(channel);
-                channel.writeAndFlush(new ServerMessagePacket("Logged in as " + byToken.getUserName() + "!", Ansi.Color.GREEN, LogType.INFO));
-            }, channel::close);
+                PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(AuthResponseType.SUCCESS, byToken.getUserName() + ":" + byToken.getAccountType()));
+            }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(AuthResponseType.ERROR, "Invalid login data!"), ChannelFutureListener.CLOSE));
 
 
         } else if (packet instanceof ClientCommandPacket clientCommandPacket) {

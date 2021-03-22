@@ -28,7 +28,7 @@ public class PacketCodec extends ByteToMessageCodec<Packet> {
             packetStorage.get(id).ifPresentOrElse(packet -> {
                 packet.read(in);
                 if (in.isReadable()) {
-             //       throw new DecoderException("Packet still readable! (" + packet.getClass().getSimpleName() + " / " + in.readableBytes() + " extra bytes)");
+                    //       throw new DecoderException("Packet still readable! (" + packet.getClass().getSimpleName() + " / " + in.readableBytes() + " extra bytes)");
                 }
                 out.add(packet);
             }, () -> {

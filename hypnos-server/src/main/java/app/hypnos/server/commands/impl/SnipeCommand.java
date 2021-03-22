@@ -89,9 +89,7 @@ public final class SnipeCommand extends Command {
                 System.out.println("soon");
                 break;
             }
-            default -> {
-                user.sendMessage("Wrong usage!", Ansi.Color.RED, LogType.ERROR);
-            }
+            default -> user.sendMessage("Wrong usage!", Ansi.Color.RED, LogType.ERROR);
         }
     }
 }

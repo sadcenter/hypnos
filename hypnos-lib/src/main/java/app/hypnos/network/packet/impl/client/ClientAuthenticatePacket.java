@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ClientAuthenticatePacket extends Packet {
 
-    {
-        super.setId((byte) 0);
-    }
-
     private String name;
     private String pass;
     private String hash;
+
+    {
+        super.setId((byte) 0);
+    }
 
     @Override
     public void read(ByteBuf buf) {

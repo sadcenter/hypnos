@@ -13,7 +13,7 @@ public final class DateUtil {
             return "< 1s";
         }
 
-        long[] units = { TimeUnit.MILLISECONDS.toDays(time) / 30L, TimeUnit.MILLISECONDS.toDays(time) % 30L, TimeUnit.MILLISECONDS.toHours(time) - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(time)), TimeUnit.MILLISECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(time)), TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)) };
+        long[] units = {TimeUnit.MILLISECONDS.toDays(time) / 30L, TimeUnit.MILLISECONDS.toDays(time) % 30L, TimeUnit.MILLISECONDS.toHours(time) - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(time)), TimeUnit.MILLISECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(time)), TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))};
         StringBuilder stringBuilder = new StringBuilder();
 
         if (units[0] > 0L) {

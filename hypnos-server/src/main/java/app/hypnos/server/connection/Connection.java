@@ -2,8 +2,8 @@ package app.hypnos.server.connection;
 
 import app.hypnos.network.codec.PacketCodec;
 import app.hypnos.server.Server;
-import app.hypnos.server.handler.GlobalPacketHandler;
 import app.hypnos.server.connection.util.LazyLoadBase;
+import app.hypnos.server.handler.GlobalPacketHandler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;

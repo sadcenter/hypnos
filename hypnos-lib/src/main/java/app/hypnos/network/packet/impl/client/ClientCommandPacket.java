@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ClientCommandPacket extends Packet {
 
+    private String command;
+
     {
         super.setId((byte) 1);
     }
-
-    private String command;
 
     @Override
     public void read(ByteBuf buf) {

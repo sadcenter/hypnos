@@ -18,11 +18,10 @@ import java.util.Scanner;
 @Getter
 public final class Client {
 
+    public static final Thread MAIN_THREAD = Thread.currentThread();
     public static Client INSTANCE;
     private final PacketStorage packetStorage;
     private final Connection connection;
-
-    public static final Thread MAIN_THREAD = Thread.currentThread();
 
     @SneakyThrows
     public Client() {
