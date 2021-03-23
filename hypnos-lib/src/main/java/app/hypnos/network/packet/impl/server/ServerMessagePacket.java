@@ -18,7 +18,7 @@ public class ServerMessagePacket extends Packet {
     private LogType logType;
 
     {
-        super.setId((byte) 2);
+        super.setId((byte) 5);
     }
 
     @Override

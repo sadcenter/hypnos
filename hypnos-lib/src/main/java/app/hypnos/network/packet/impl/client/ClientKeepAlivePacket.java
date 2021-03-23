@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 public class ClientKeepAlivePacket extends Packet {
 
     {
-        super.setId((byte) 3);
+        super.setId((byte) 2);
     }
 
     @Override
