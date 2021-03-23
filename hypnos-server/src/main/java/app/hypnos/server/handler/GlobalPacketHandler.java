@@ -39,7 +39,10 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
             Server.INSTANCE.findByToken(AuthUtil.generateAuthToken(clientAuthenticatePacket.getName(), clientAuthenticatePacket.getPass())).ifPresentOrElse(byToken -> {
                 if (byToken.isBanned()) {
                     Ban ban = byToken.getBan();
-                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "You are banned! \n ---> Admin: " + ban.getAdmin() + "\n ---> Reason: " + ban.getReason()), ChannelFutureListener.CLOSE);
+                    PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "You are banned!",
+                            " ---> Admin: "+ban.getAdmin(),
+                            " ---> Reason: " + ban.getReason()),
+                            ChannelFutureListener.CLOSE);
                     return;
                 }
 
@@ -56,7 +59,9 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
                 byToken.setConnectedSince(System.currentTimeMillis());
                 byToken.setChannel(channel);
-                byToken.sendPacket(new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account Type: " + byToken.getAccountType().name()));
+                byToken.sendPacket(new ServerAuthenticationResponsePacket(true,
+                        "Logged successful as " + byToken.getUserName(),
+                        " ---> Account Type: " + byToken.getAccountType()));
                 logger.info("User connected - " + byToken.getUserName() + " (" + byToken.getAccountType() + ")");
             }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid login data!"), ChannelFutureListener.CLOSE));
         } else if (packet instanceof ClientCommandPacket clientCommandPacket) {

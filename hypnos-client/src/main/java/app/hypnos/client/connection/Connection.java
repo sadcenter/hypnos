@@ -4,7 +4,6 @@ import app.hypnos.client.Client;
 import app.hypnos.client.connection.handler.GlobalPacketHandler;
 import app.hypnos.network.codec.PacketCodec;
 import app.hypnos.network.packet.Packet;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -23,8 +22,7 @@ public class Connection {
         Executors.newCachedThreadPool().execute(() -> {
             try {
                 ChannelFuture future = new Bootstrap()
-                        .group(new NioEventLoopGroup(new ThreadFactoryBuilder().setDaemon(true)
-                                .build()))
+                        .group(new NioEventLoopGroup())
                         .channel(NioSocketChannel.class)
                         .option(ChannelOption.TCP_NODELAY, true)
                         .option(ChannelOption.IP_TOS, 0x18)
@@ -50,7 +48,7 @@ public class Connection {
     public void sendToServer(Packet packet) {
         if (channel.isOpen()) {
             channel.writeAndFlush(packet)
-                    .addListener(ChannelFutureListener.CLOSE);
+                    .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
         }
     }
 

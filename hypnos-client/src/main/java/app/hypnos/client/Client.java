@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.netty.channel.Channel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.fusesource.jansi.Ansi;
 
@@ -20,14 +21,18 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Getter
 public final class Client {
 
     public static final Thread MAIN_THREAD = Thread.currentThread();
     private static final int VERSION = 31;
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
     public static Client INSTANCE;
     private PacketStorage packetStorage;
+    @Setter
     private Connection connection;
     private MessageThread messageThread;
 
@@ -78,7 +83,7 @@ public final class Client {
         connection = new Connection(ip, port);
 
         while (connection.getChannel() == null) {
-            System.out.println();
+
         }
 
         authenticate(userName, password);

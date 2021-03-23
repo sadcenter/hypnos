@@ -31,8 +31,6 @@ public class ServerPacketCodec extends ByteToMessageCodec<Packet> {
                 packet.read(in);
                 if (in.isReadable()) {
                     logger.warn("Packet overload detected! (" + packet.getClass().getSimpleName() + " / " + in.readableBytes() + " extra bytes)");
-                    //     logger.warn("For safety, blocking address for 3 days!");
-                    //      Server.INSTANCE.getBlockedAddresses().put(((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress(), System.currentTimeMillis());
                 }
                 out.add(packet);
             }, () -> {

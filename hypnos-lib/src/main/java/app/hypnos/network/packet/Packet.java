@@ -27,17 +27,15 @@ public abstract class Packet {
         short length = byteBuf.readShort();
         System.out.println(length);
         byte[] bytes = new byte[length];
-        System.out.println(bytes.length);
+        System.out.println("bytes length: " + bytes.length);
         byteBuf.readBytes(bytes);
         return bytes;
     }
 
     public String readString(int maxLength, ByteBuf byteBuf) {
-        return new String(readByteArray(byteBuf), StandardCharsets.UTF_8);
-    }
-
-    public boolean readBoolean(ByteBuf byteBuf) {
-        return byteBuf.readBoolean();
+        String a = new String(readByteArray(byteBuf), StandardCharsets.UTF_8);
+        System.out.println(a + " length: " + a.length());
+        return a;
     }
 
     public void writeString(ByteBuf byteBuf, String string) {
