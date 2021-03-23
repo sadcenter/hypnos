@@ -4,7 +4,6 @@ import app.hypnos.network.packet.storage.PacketStorage;
 import app.hypnos.server.commands.Command;
 import app.hypnos.server.commands.impl.*;
 import app.hypnos.server.connection.Connection;
-import app.hypnos.server.data.Account;
 import app.hypnos.server.data.Snipe;
 import app.hypnos.server.data.User;
 import app.hypnos.server.database.ConverterCodec;
@@ -12,7 +11,6 @@ import app.hypnos.server.database.impl.UserConverterCodec;
 import app.hypnos.server.threads.KeepAliveThread;
 import app.hypnos.server.threads.NickNameSniperThread;
 import app.hypnos.server.threads.SaveDataThread;
-import app.hypnos.server.utils.SniperUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
@@ -81,7 +79,7 @@ public class Server {
 
         loadDatabase();
 
-     //   System.out.println(SniperUtil.getAuthToken(new Account("sadcentertv@protonmail.com", "Korek133@")));
+        //   System.out.println(SniperUtil.getAuthToken(new Account("sadcentertv@protonmail.com", "Korek133@")));
 
         executorService.execute(() -> new Connection(5482));
 

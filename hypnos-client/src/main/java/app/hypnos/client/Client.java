@@ -86,7 +86,7 @@ public final class Client {
 
         initialize();
 
-        new KeepAliveThread(this).start();
+        new KeepAliveThread().start();
 
         MessageUtil.clear();
 

@@ -92,10 +92,10 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     public void channelRegistered(ChannelHandlerContext ctx) {
         String ip = ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress();
         System.out.println(ip);
-        if (Server.INSTANCE.getBlockedAddresses().asMap().containsKey(ip)) {
-            System.out.println("huj");
-            ctx.close();
-        }
+      //  if (Server.INSTANCE.getBlockedAddresses().asMap().containsKey(ip)) {
+        //    System.out.println("huj");
+          //  ctx.close();
+        //}
     }
 
     @Override

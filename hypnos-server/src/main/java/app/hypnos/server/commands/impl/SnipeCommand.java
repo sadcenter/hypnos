@@ -42,7 +42,7 @@ public final class SnipeCommand extends Command {
                     throw new CommandException("This name is already taken.");
                 }
 
-                if (Server.INSTANCE.findSnipe(snipe).isPresent()) {
+                if (Server.INSTANCE.findSnipe(snipe) != null) {
                     throw new CommandException("This name is already sniping!");
                 }
 
