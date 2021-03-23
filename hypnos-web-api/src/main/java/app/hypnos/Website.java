@@ -1,23 +1,19 @@
 package app.hypnos;
 
-import com.google.gson.JsonObject;
+import app.hypnos.data.Default;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.javalin.Javalin;
 
-public final class Website {
+public class Website {
+
+    private static final Gson GSON = new GsonBuilder()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .create();
+    private static final String defaultAPIResponse = GSON.toJson(new Default());
 
     public static void main(String[] args) {
-        Javalin javalin = Javalin.create().start(4893);
-
-        JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("ip", "95.214.52.221");
-        jsonObject.addProperty("port", 5482);
-        jsonObject.addProperty("version", 31);
-
-        javalin.get("api", context -> {
-
-            context.result(jsonObject.toString());
-        });
+        Javalin.create().start(4893).get("api", context -> context.result(defaultAPIResponse));
     }
-
 }

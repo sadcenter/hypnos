@@ -2,7 +2,6 @@ package app.hypnos.client;
 
 import app.hypnos.client.commands.KeepAliveThread;
 import app.hypnos.client.commands.MessageThread;
-import app.hypnos.client.commands.ShutdownThread;
 import app.hypnos.client.connection.Connection;
 import app.hypnos.client.utils.HardwareUtil;
 import app.hypnos.network.packet.impl.client.ClientAuthenticatePacket;
