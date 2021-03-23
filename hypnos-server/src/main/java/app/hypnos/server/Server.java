@@ -56,7 +56,7 @@ public class Server {
             new ClientsCommand(),
             new StatsCommand());
 
-    private final Cache<Channel, Object> keepAliveCache = Caffeine.newBuilder()
+    private final Cache<Channel, Boolean> keepAliveCache = Caffeine.newBuilder()
             .expireAfterWrite(3, TimeUnit.SECONDS)
             .build();
 

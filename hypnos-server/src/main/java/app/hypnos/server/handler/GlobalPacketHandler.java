@@ -25,7 +25,6 @@ import java.util.Arrays;
 
 public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
-    private static final Object VALUE = new Object();
     private final Logger logger = LoggerFactory.getLogger(GlobalPacketHandler.class);
 
     @Override
@@ -84,7 +83,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
                 return;
             }
 
-            Server.INSTANCE.getKeepAliveCache().put(user.getChannel(), VALUE);
+            Server.INSTANCE.getKeepAliveCache().put(channel, true);
         }
     }
 
