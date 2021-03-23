@@ -16,7 +16,7 @@ public class ServerAuthenticationResponsePacket extends Packet {
     private long accountExpire;
 
     {
-        super.setId((byte) 5);
+        super.setId((byte) 3);
     }
 
     public ServerAuthenticationResponsePacket(boolean successful, String additionalInformation) {
