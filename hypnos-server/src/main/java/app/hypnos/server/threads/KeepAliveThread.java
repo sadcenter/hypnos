@@ -2,32 +2,20 @@ package app.hypnos.server.threads;
 
 import app.hypnos.server.Server;
 import app.hypnos.server.data.User;
+import com.google.common.util.concurrent.AbstractScheduledService;
+import io.netty.channel.ChannelOutboundInvoker;
 
-public final class KeepAliveThread extends Thread {
+import java.util.concurrent.TimeUnit;
 
-    private final Server server;
+public class KeepAliveThread extends AbstractScheduledService {
 
-    public KeepAliveThread(Server server) {
-        this.server = server;
-
-        setDaemon(true);
-        setName("keep alive thread");
+    @Override
+    protected void runOneIteration() {
+        Server.INSTANCE.getConnectedUsers().stream().map(User::getChannel).filter(channel -> Server.INSTANCE.getKeepAliveCache().getIfPresent(channel) == null).forEach(ChannelOutboundInvoker::close);
     }
 
     @Override
-    public void run() {
-        server.getConnectedUsers().stream().map(User::getChannel).forEach(channel -> {
-            if (server.getKeepAliveCache().getIfPresent(channel) == null) {
-                channel.close();
-            }
-        });
-
-        try {
-            Thread.sleep(1_500L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        run();
+    protected Scheduler scheduler() {
+        return Scheduler.newFixedDelaySchedule(0L, 1_500L, TimeUnit.MILLISECONDS);
     }
 }

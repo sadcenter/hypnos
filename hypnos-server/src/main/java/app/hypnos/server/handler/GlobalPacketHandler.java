@@ -21,7 +21,6 @@ import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
@@ -30,8 +29,8 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     private final Logger logger = LoggerFactory.getLogger(GlobalPacketHandler.class);
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
-        Channel channel = channelHandlerContext.channel();
+    protected void channelRead0(ChannelHandlerContext handlerContext, Packet packet) {
+        Channel channel = handlerContext.channel();
         User user = Server.INSTANCE.findByChannel(channel);
         if (packet instanceof ClientAuthenticatePacket && user != null) {
             channel.close();
@@ -58,14 +57,15 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
                 byToken.setConnectedSince(System.currentTimeMillis());
                 byToken.setChannel(channel);
-                PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account Type: " + byToken.getAccountType().name()));
+                byToken.sendPacket(new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account Type: " + byToken.getAccountType().name()));
                 logger.info("User connected - " + byToken.getUserName() + " (" + byToken.getAccountType() + ")");
             }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid login data!"), ChannelFutureListener.CLOSE));
         } else if (packet instanceof ClientCommandPacket clientCommandPacket) {
             String[] split = clientCommandPacket.getCommand().split(" ");
 
             String commandName = split[0];
-            Server.INSTANCE.getCommands().stream().filter(cmd -> cmd.getName().equals(commandName) || cmd.getAliases().contains(commandName)).findFirst().ifPresentOrElse(command -> {
+            Server.INSTANCE.getCommands().stream().filter(cmd -> cmd.getName().equals(commandName)
+                    || cmd.getAliases().contains(commandName)).findFirst().ifPresentOrElse(command -> {
                 if (!user.getAccountType().can(command.getPermission())) {
                     PacketUtil.sendPacket(channel, new ServerMessagePacket("You don't have access to " + command.getPermission() + " rank.", Ansi.Color.RED, LogType.INFO));
                     return;
@@ -89,27 +89,14 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     }
 
     @Override
-    public void channelRegistered(ChannelHandlerContext ctx) {
-        String ip = ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress();
-        System.out.println(ip);
-        //  if (Server.INSTANCE.getBlockedAddresses().asMap().containsKey(ip)) {
-        //    System.out.println("huj");
-        //  ctx.close();
-        //}
+    public void exceptionCaught(ChannelHandlerContext handlerContext, Throwable throwable) {
+        throwable.printStackTrace();
+        handlerContext.close();
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
-        Channel channel = ctx.channel();
-        if (channel.isOpen()) {
-            channel.close();
-        }
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        User user = Server.INSTANCE.findByChannel(ctx.channel());
+    public void channelInactive(ChannelHandlerContext handlerContext) {
+        User user = Server.INSTANCE.findByChannel(handlerContext.channel());
         if (user != null) {
             if (user.isUpdateRequired()) {
                 Server.INSTANCE.getMongoDatabase().getCollection("users", User.class).replaceOne(user.getQuery(), user);

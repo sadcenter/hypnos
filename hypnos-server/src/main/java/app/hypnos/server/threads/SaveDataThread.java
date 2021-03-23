@@ -2,33 +2,23 @@ package app.hypnos.server.threads;
 
 import app.hypnos.server.Server;
 import app.hypnos.server.data.User;
+import com.google.common.util.concurrent.AbstractScheduledService;
 
-public final class SaveDataThread extends Thread {
+import java.util.concurrent.TimeUnit;
 
-    private final Server server;
+public class SaveDataThread extends AbstractScheduledService {
 
-    public SaveDataThread(Server server) {
-        this.server = server;
-
-        setDaemon(true);
-        setName("save data thread");
+    @Override
+    protected void runOneIteration() {
+        Server.INSTANCE.getUsers().forEach(user -> {
+            if (user.isUpdateRequired()) {
+                Server.INSTANCE.getMongoDatabase().getCollection("users", User.class).replaceOne(user.getQuery(), user);
+            }
+        });
     }
 
     @Override
-    public void run() {
-        server.getUsers().forEach(user -> {
-            if (!user.isUpdateRequired()) {
-                return;
-            }
-
-            server.getMongoDatabase().getCollection("users", User.class).replaceOne(user.getQuery(), user);
-        });
-
-        try {
-            Thread.sleep(60_000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        run();
+    protected Scheduler scheduler() {
+        return Scheduler.newFixedDelaySchedule(0L, 60L, TimeUnit.SECONDS);
     }
 }

@@ -8,17 +8,11 @@ import com.google.common.util.concurrent.AbstractScheduledService;
 
 import java.util.concurrent.TimeUnit;
 
-public final class NickNameSniperThread extends AbstractScheduledService {
-
-    private final Server server;
-
-    public NickNameSniperThread(Server server) {
-        this.server = server;
-    }
+public class NickNameSniperThread extends AbstractScheduledService {
 
     @Override
     protected void runOneIteration() {
-        for (User user : this.server.getUsers()) {
+        for (User user : Server.INSTANCE.getUsers()) {
             for (Snipe snipe : user.getSnipes()) {
                 String authToken = SniperUtil.getAuthToken(snipe.getAccount());
                 if (snipe.getAccessTime() - 2000 <= System.currentTimeMillis()) {
@@ -29,7 +23,6 @@ public final class NickNameSniperThread extends AbstractScheduledService {
                 }
             }
         }
-
     }
 
     @Override

@@ -1,6 +1,5 @@
 package app.hypnos.server.connection;
 
-import app.hypnos.server.Server;
 import app.hypnos.server.connection.codec.ServerPacketCodec;
 import app.hypnos.server.handler.GlobalPacketHandler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -34,22 +33,17 @@ public class Connection {
             serverChannel = NioServerSocketChannel.class;
         }
         try {
-            new ServerBootstrap()
-                    .group(group)
+            new ServerBootstrap().group(group)
                     .channel(serverChannel)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline()
-                                    .addLast("codec", new ServerPacketCodec(Server.INSTANCE.getPacketStorage()))
+                                    .addLast("codec", new ServerPacketCodec())
                                     .addLast("global_handler", new GlobalPacketHandler());
                         }
                     })
-                    .bind(port)
-                    .sync()
-                    .channel()
-                    .closeFuture()
-                    .sync();
+                    .bind(port).sync().channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

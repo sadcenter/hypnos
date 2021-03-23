@@ -27,11 +27,10 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -47,8 +46,15 @@ public class Server {
     public static Server INSTANCE;
     private final Logger logger = LoggerFactory.getLogger(Server.class);
 
-    private final Set<User> users = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private final Set<Command> commands = Sets.newHashSet(new HelpCommand(), new UnBanCommand(), new SnipeCommand(), new SnipesCommand(), new KickClientCommand(), new BanClientCommand(), new ClientsCommand(), new StatsCommand());
+    private final Set<User> users = new HashSet<>();
+    private final Set<Command> commands = Sets.newHashSet(new HelpCommand(),
+            new UnBanCommand(),
+            new SnipeCommand(),
+            new SnipesCommand(),
+            new KickClientCommand(),
+            new BanClientCommand(),
+            new ClientsCommand(),
+            new StatsCommand());
 
     private final Cache<Channel, Object> keepAliveCache = Caffeine.newBuilder()
             .expireAfterWrite(3, TimeUnit.SECONDS)
@@ -70,22 +76,13 @@ public class Server {
 
         startMongo(new UserConverterCodec());
 
-        // User user = new User("daniulek", AuthUtil.generateAuthToken("daniulek", "daniulek"),
-        //       AccountType.CLIENT,
-        //     new HashSet<>(),
-        //   new HashSet<>());
-
-        //        this.mongoDatabase.getCollection("users", User.class).insertOne(user);
-
         loadDatabase();
-
-        //   System.out.println(SniperUtil.getAuthToken(new Account("sadcentertv@protonmail.com", "Korek133@")));
 
         executorService.execute(() -> new Connection(5482));
 
-        new SaveDataThread(this).start();
-        new KeepAliveThread(this).start();
-        new NickNameSniperThread(this).startAsync();
+        new SaveDataThread().startAsync();
+        new KeepAliveThread().startAsync();
+        new NickNameSniperThread().startAsync();
     }
 
 
