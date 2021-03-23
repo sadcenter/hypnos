@@ -25,13 +25,11 @@ public final class SnipeCommand extends Command {
         if (args.length == 0) {
             throw new CommandException("Correct usage: snipe [start/stop/list] [nick] [username:password]");
         }
-
-        String type = args[0];
-
-        switch (type.toLowerCase(Locale.ROOT)) {
+        switch (args[0].toLowerCase(Locale.ROOT)) {
             case "start" -> {
-                if (user.getAccountType().getMaxSnipes() > -1 && user.getSnipes().size() >= user.getAccountType().getMaxSnipes()) {
-                    throw new CommandException("For you snipe limit is " + user.getAccountType().getMaxSnipes());
+                int maxSnipes = user.getAccountType().getMaxSnipes();
+                if (maxSnipes > -1 && user.getSnipes().size() >= maxSnipes) {
+                    throw new CommandException("For you snipe limit is " + maxSnipes);
                 }
 
                 if (args.length < 4) {
@@ -44,7 +42,7 @@ public final class SnipeCommand extends Command {
                     throw new CommandException("This name is already taken.");
                 }
 
-                if (Server.INSTANCE.findSnipe(snipe) != null) {
+                if (Server.INSTANCE.findSnipe(snipe).isPresent()) {
                     throw new CommandException("This name is already sniping!");
                 }
 
@@ -103,13 +101,13 @@ public final class SnipeCommand extends Command {
                 }
 
                 Snipe snipe = user.getSnipe(args[1]);
+
                 if (snipe == null) {
                     throw new CommandException("You don't sniping this nickname");
+                } else {
+                    user.getSnipes().remove(snipe);
+                    user.sendMessage("Sniping stopped", Ansi.Color.GREEN, LogType.INFO);
                 }
-
-                user.getSnipes().remove(snipe);
-                user.sendMessage("Sniping stopped", Ansi.Color.GREEN, LogType.INFO);
-
             }
             default -> user.sendMessage("Wrong usage!", Ansi.Color.RED, LogType.ERROR);
         }

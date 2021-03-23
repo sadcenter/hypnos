@@ -45,7 +45,10 @@ public final class User {
     }
 
     public Snipe getSnipe(String name) {
-        return snipes.stream().filter(snipe -> snipe.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        return snipes.stream()
+                .filter(snipe -> snipe.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     public Document getQuery() {

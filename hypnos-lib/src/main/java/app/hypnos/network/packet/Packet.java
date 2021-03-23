@@ -36,7 +36,6 @@ public abstract class Packet {
         String string = byteBuf.toString(readerIndex, length, StandardCharsets.UTF_8);
         byteBuf.readerIndex(readerIndex + length);
         if (string.length() > maxLength) {
-            System.out.println("d");
             throw new DecoderException("Readed string length is too long!");
         }
         return string;

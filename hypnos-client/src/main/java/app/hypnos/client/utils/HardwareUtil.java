@@ -24,11 +24,9 @@ public class HardwareUtil {
         int processors = centralProcessor.getLogicalProcessorCount();
         return Hashing.sha256()
                 .hashString(vendor +
-                            processorSerialNumber +
-                            processorIdentifier +
-                            processors, StandardCharsets.UTF_8)
+                        processorSerialNumber +
+                        processorIdentifier +
+                        processors, StandardCharsets.UTF_8)
                 .toString();
     }
-
-
 }

@@ -1,5 +1,10 @@
 package app.hypnos.type;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Getter
 public enum AccountType {
 
     ADMIN(-1),
@@ -8,14 +13,6 @@ public enum AccountType {
     TRIAL(0);
 
     private final int maxSnipes;
-
-    AccountType(int maxSnipes) {
-        this.maxSnipes = maxSnipes;
-    }
-
-    public int getMaxSnipes() {
-        return maxSnipes;
-    }
 
     public boolean can(AccountType accountType) {
         return this.ordinal() <= accountType.ordinal();
