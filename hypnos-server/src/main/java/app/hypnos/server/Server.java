@@ -11,7 +11,6 @@ import app.hypnos.server.database.impl.UserConverterCodec;
 import app.hypnos.server.threads.KeepAliveThread;
 import app.hypnos.server.threads.NickNameSniperThread;
 import app.hypnos.server.threads.SaveDataThread;
-import app.hypnos.server.utils.DateUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
@@ -120,8 +119,8 @@ public class Server {
         return users.stream().filter(user -> user.getUserName().equals(name)).findFirst();
     }
 
-    public Snipe findSnipe(String name) {
-        return users.stream().map(user -> user.getSnipe(name)).filter(Objects::nonNull).findFirst().orElse(null);
+    public Optional<Snipe> findSnipe(String name) {
+        return users.stream().map(user -> user.getSnipe(name)).filter(Objects::nonNull).findFirst();
     }
 
     public Set<User> getConnectedUsers() {

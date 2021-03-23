@@ -17,14 +17,13 @@ public final class KeepAliveThread extends Thread {
     @Override
     public void run() {
         server.getConnectedUsers().stream().map(User::getChannel).forEach(channel -> {
-
             if (server.getKeepAliveCache().getIfPresent(channel) == null) {
                 channel.close();
             }
         });
 
         try {
-            Thread.sleep(1500L);
+            Thread.sleep(1_500L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

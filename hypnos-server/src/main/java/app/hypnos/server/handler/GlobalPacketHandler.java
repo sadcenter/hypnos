@@ -56,8 +56,6 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
                 byToken.setChannel(channel);
                 PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account Type: " + byToken.getAccountType().name()));
             }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid login data!"), ChannelFutureListener.CLOSE));
-
-
         } else if (packet instanceof ClientCommandPacket clientCommandPacket) {
             String[] split = clientCommandPacket.getCommand().split(" ");
 
@@ -87,7 +85,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace(); // temporarily
+        cause.printStackTrace();
         Channel channel = ctx.channel();
         if (channel.isOpen()) {
             channel.close();

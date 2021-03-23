@@ -21,7 +21,7 @@ public class ServerAuthenticationResponsePacket extends Packet {
     @Override
     public void read(ByteBuf buf) {
         successful = super.readBoolean(buf);
-        additionalInformation = super.readString(500, buf);
+        additionalInformation = super.readString(Short.MAX_VALUE, buf);
     }
 
     @Override

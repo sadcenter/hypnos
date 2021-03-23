@@ -4,7 +4,6 @@ import app.hypnos.server.Server;
 import app.hypnos.server.data.Snipe;
 import app.hypnos.server.data.User;
 import app.hypnos.server.utils.SniperUtil;
-import lombok.SneakyThrows;
 
 public final class NickNameSniperThread extends Thread {
 
@@ -18,7 +17,6 @@ public final class NickNameSniperThread extends Thread {
     }
 
     @Override
-    @SneakyThrows
     public void run() {
         for (User user : this.server.getUsers()) {
             for (Snipe snipe : user.getSnipes()) {
@@ -32,7 +30,11 @@ public final class NickNameSniperThread extends Thread {
             }
         }
 
-        Thread.sleep(10L);
+        try {
+            Thread.sleep(10L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         run();
     }

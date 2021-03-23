@@ -28,11 +28,11 @@ public final class MessageUtil {
     public static void clear() {
         System.out.println(Ansi.ansi().eraseScreen().reset());
         System.out.println(Ansi.ansi().fg(Ansi.Color.MAGENTA).a("                   .__                                       \n" +
-                                                                "                   |  |__ ___.__.______   ____   ____  ______\n" +
-                                                                "                   |  |  <   |  |\\____ \\ /    \\ /  _ \\/  ___/\n" +
-                                                                "                   |   Y  \\___  ||  |_> >   |  (  <_> )___ \\ \n" +
-                                                                "                   |___|  / ____||   __/|___|  /\\____/____  >\n" +
-                                                                "                        \\/\\/     |__|        \\/           \\/ \n".indent(30)).reset());
+                "                   |  |__ ___.__.______   ____   ____  ______\n" +
+                "                   |  |  <   |  |\\____ \\ /    \\ /  _ \\/  ___/\n" +
+                "                   |   Y  \\___  ||  |_> >   |  (  <_> )___ \\ \n" +
+                "                   |___|  / ____||   __/|___|  /\\____/____  >\n" +
+                "                        \\/\\/     |__|        \\/           \\/ \n".indent(30)).reset());
         for (int i = 0; i < 8; i++) {
             System.out.println(" ");
         }
