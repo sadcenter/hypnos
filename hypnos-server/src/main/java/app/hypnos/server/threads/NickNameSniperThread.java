@@ -7,18 +7,13 @@ import app.hypnos.server.utils.SniperUtil;
 
 public final class NickNameSniperThread extends Thread {
 
-    private final Server server;
-
-    public NickNameSniperThread(Server server) {
-        this.server = server;
-
-        setDaemon(true);
-        setName("sniper");
+    public NickNameSniperThread() {
+        super.setDaemon(true);
     }
 
     @Override
     public void run() {
-        for (User user : this.server.getUsers()) {
+        for (User user : Server.INSTANCE.getUsers()) {
             for (Snipe snipe : user.getSnipes()) {
                 String authToken = SniperUtil.getAuthToken(snipe.getAccount());
                 if (snipe.getAccessTime() - 1500 <= System.currentTimeMillis()) {

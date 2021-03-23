@@ -7,7 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public final class MessageUtil {
+public class MessageUtil {
 
     private static final DateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss");
 
@@ -37,5 +37,4 @@ public final class MessageUtil {
             System.out.println(" ");
         }
     }
-
 }

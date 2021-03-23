@@ -9,8 +9,8 @@ import app.hypnos.server.data.User;
 import app.hypnos.server.database.ConverterCodec;
 import app.hypnos.server.database.impl.UserConverterCodec;
 import app.hypnos.server.threads.KeepAliveThread;
-import app.hypnos.server.threads.NickNameSniperThread;
 import app.hypnos.server.threads.SaveDataThread;
+import app.hypnos.server.utils.SniperUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
@@ -27,10 +27,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,6 +51,9 @@ public class Server {
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final PacketStorage packetStorage = new PacketStorage();
+    private final Cache<String, Long> blockedAddresses = Caffeine.newBuilder()
+            .expireAfterWrite(3, TimeUnit.DAYS)
+            .build();
 
     private MongoDatabase mongoDatabase;
 
@@ -63,25 +63,29 @@ public class Server {
             logger.info("Can't create another Server instance!");
             return;
         }
-
         INSTANCE = this;
-
         startMongo(new UserConverterCodec());
-
-        // User user = new User("daniulek", AuthUtil.generateAuthToken("daniulek", "daniulek"),
-        //       AccountType.CLIENT,
-        //     new HashSet<>(),
-        //   new HashSet<>());
-
-        //        this.mongoDatabase.getCollection("users", User.class).insertOne(user);
-
         loadDatabase();
-
         executorService.execute(() -> new Connection(5482));
-
         new SaveDataThread(this).start();
         new KeepAliveThread(this).start();
-        new NickNameSniperThread(this).start();
+        //new NickNameSniperThread().start();
+        executorService.execute(() -> new Timer("sniper-timer").scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                for (User user : Server.INSTANCE.getUsers()) {
+                    for (Snipe snipe : user.getSnipes()) {
+                        String authToken = SniperUtil.getAuthToken(snipe.getAccount());
+                        if (snipe.getAccessTime() - 1500 <= System.currentTimeMillis()) {
+                            for (int i = 0; i < 5; i++) {
+                                SniperUtil.changeName(user, snipe, authToken);
+                            }
+
+                        }
+                    }
+                }
+            }
+        }, 10L, 10L));
     }
 
 

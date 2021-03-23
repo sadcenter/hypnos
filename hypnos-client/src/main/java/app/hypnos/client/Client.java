@@ -65,7 +65,7 @@ public final class Client {
         }
         authenticate(userName, password);
         initialize();
-        new KeepAliveThread(this).start();
+        new KeepAliveThread().start();
         MessageUtil.clear();
     }
 
@@ -76,6 +76,6 @@ public final class Client {
     public void initialize() {
         messageThread = new MessageThread(this);
         messageThread.start();
-        Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
+        Runtime.getRuntime().addShutdownHook(new ShutdownThread());
     }
 }

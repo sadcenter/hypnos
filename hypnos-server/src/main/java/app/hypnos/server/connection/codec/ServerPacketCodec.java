@@ -1,4 +1,4 @@
-package app.hypnos.network.codec;
+package app.hypnos.server.connection.codec;
 
 import app.hypnos.network.packet.Packet;
 import app.hypnos.network.packet.storage.PacketStorage;
@@ -7,13 +7,16 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.codec.DecoderException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 @RequiredArgsConstructor
-public class PacketCodec extends ByteToMessageCodec<Packet> {
+public class ServerPacketCodec extends ByteToMessageCodec<Packet> {
 
     private final PacketStorage packetStorage;
+    private final Logger logger = LoggerFactory.getLogger(ServerPacketCodec.class);
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) {
@@ -28,7 +31,9 @@ public class PacketCodec extends ByteToMessageCodec<Packet> {
             packetStorage.get(id).ifPresentOrElse(packet -> {
                 packet.read(in);
                 if (in.isReadable()) {
-                    throw new DecoderException("Packet overload detected! (" + packet.getClass().getSimpleName() + " / " + in.readableBytes() + " extra bytes)");
+               //     logger.warn("Packet overload detected! (" + packet.getClass().getSimpleName() + " / " + in.readableBytes() + " extra bytes)");
+               //     logger.warn("For safety, blocking address for 3 days!");
+              //      Server.INSTANCE.getBlockedAddresses().put(((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress(), System.currentTimeMillis());
                 }
                 out.add(packet);
             }, () -> {

@@ -18,12 +18,16 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.fusesource.jansi.Ansi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     private static final Object VALUE = new Object();
+    private final Logger logger = LoggerFactory.getLogger(GlobalPacketHandler.class);
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
@@ -55,6 +59,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
                 byToken.setConnectedSince(System.currentTimeMillis());
                 byToken.setChannel(channel);
                 PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(true, "Logged successful as " + byToken.getUserName() + " \n ---> Account Type: " + byToken.getAccountType().name()));
+                logger.info("User connected - " + byToken.getUserName() + " (" + byToken.getAccountType() + ")");
             }, () -> PacketUtil.sendPacket(channel, new ServerAuthenticationResponsePacket(false, "Invalid login data!"), ChannelFutureListener.CLOSE));
         } else if (packet instanceof ClientCommandPacket clientCommandPacket) {
             String[] split = clientCommandPacket.getCommand().split(" ");
@@ -84,6 +89,16 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
     }
 
     @Override
+    public void channelRegistered(ChannelHandlerContext ctx) {
+        String ip = ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress();
+        System.out.println(ip);
+        if (Server.INSTANCE.getBlockedAddresses().asMap().containsKey(ip)) {
+            System.out.println("huj");
+            ctx.close();
+        }
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         Channel channel = ctx.channel();
@@ -100,6 +115,7 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
                 Server.INSTANCE.getMongoDatabase().getCollection("users", User.class).replaceOne(user.getQuery(), user);
             }
             user.setChannel(null);
+            logger.info("User disconnected " + user.getUserName() + " (" + user.getAccountType() + ")");
         }
     }
 }

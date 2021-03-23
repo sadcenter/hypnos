@@ -29,6 +29,4 @@ public class HardwareUtil {
                         processors, StandardCharsets.UTF_8)
                 .toString();
     }
-
-
 }

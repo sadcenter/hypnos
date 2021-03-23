@@ -13,9 +13,16 @@ public class ServerAuthenticationResponsePacket extends Packet {
 
     private boolean successful;
     private String additionalInformation;
+    private long accountExpire;
 
     {
         super.setId((byte) 5);
+    }
+
+    public ServerAuthenticationResponsePacket(boolean successful, String additionalInformation) {
+        this.successful = successful;
+        this.additionalInformation = additionalInformation;
+        this.accountExpire = 1L;
     }
 
     @Override
