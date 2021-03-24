@@ -1,6 +1,7 @@
 package app.hypnos.network.packet;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.DecoderException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -24,18 +25,18 @@ public abstract class Packet {
     }
 
     public byte[] readByteArray(ByteBuf byteBuf) {
-        short length = byteBuf.readShort();
-        System.out.println(length);
-        byte[] bytes = new byte[length];
-        System.out.println("bytes length: " + bytes.length);
+        byte[] bytes = new byte[byteBuf.readShort()];
         byteBuf.readBytes(bytes);
         return bytes;
     }
 
     public String readString(int maxLength, ByteBuf byteBuf) {
-        String a = new String(readByteArray(byteBuf), StandardCharsets.UTF_8);
-        System.out.println(a + " length: " + a.length());
-        return a;
+        String string = new String(readByteArray(byteBuf), StandardCharsets.UTF_8);
+        int length = string.length();
+        if (length > maxLength) {
+            throw new DecoderException("String is longer than i expected! ("+length+" > "+maxLength+")");
+        }
+        return string;
     }
 
     public void writeString(ByteBuf byteBuf, String string) {
