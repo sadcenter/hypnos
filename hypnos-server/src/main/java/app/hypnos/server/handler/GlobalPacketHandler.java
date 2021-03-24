@@ -94,7 +94,6 @@ public class GlobalPacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext handlerContext, Throwable throwable) {
-        throwable.printStackTrace();
         handlerContext.close();
     }
 

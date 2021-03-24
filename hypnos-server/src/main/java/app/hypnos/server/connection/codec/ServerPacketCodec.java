@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -30,15 +31,17 @@ public class ServerPacketCodec extends ByteToMessageCodec<Packet> {
             Server.INSTANCE.getPacketStorage().get(id).ifPresentOrElse(packet -> {
                 packet.read(in);
                 if (in.isReadable()) {
-                    logger.warn("Packet overload detected! (" + packet.getClass().getSimpleName() + " / " + in.readableBytes() + " extra bytes)");
+                    throw new DecoderException("Packet overload detected! (" + packet.getClass().getSimpleName() + " / " + in.readableBytes() + " extra bytes)");
                 }
                 out.add(packet);
             }, () -> {
                 throw new DecoderException("Unknown packet with id: " + id);
             });
         } catch (Exception exception) {
+            ctx.close();
             in.skipBytes(in.readableBytes());
-            ctx.fireExceptionCaught(exception);
+            logger.info("Exception was thrown while decoding a packet ("+((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress()+"):");
+            logger.info(exception.getMessage());
         }
     }
 }
