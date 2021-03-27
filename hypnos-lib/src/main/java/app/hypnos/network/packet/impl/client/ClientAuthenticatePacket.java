@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ClientAuthenticatePacket extends Packet {
 
-    private String name;
-    private String pass;
-    private String hash;
+    private String name, pass, hash;
 
     {
         super.setId((byte) 0);

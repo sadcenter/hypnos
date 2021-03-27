@@ -26,6 +26,7 @@ public class ServerPacketCodec extends ByteToMessageCodec<Packet> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
+        System.out.println(in.readableBytes() + " bytes readable");
         try {
             byte id = in.readByte();
             Server.INSTANCE.getPacketStorage().get(id).ifPresentOrElse(packet -> {

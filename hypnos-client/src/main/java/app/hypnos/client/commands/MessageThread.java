@@ -33,7 +33,6 @@ public final class MessageThread extends Thread {
             }
 
             client.getConnection().sendToServer(new ClientCommandPacket(commandText));
-
         }
     }
 }

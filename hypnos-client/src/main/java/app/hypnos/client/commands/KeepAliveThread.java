@@ -2,27 +2,19 @@ package app.hypnos.client.commands;
 
 import app.hypnos.client.Client;
 import app.hypnos.network.packet.impl.client.ClientKeepAlivePacket;
+import com.google.common.util.concurrent.AbstractScheduledService;
 
-public class KeepAliveThread extends Thread {
+import java.util.concurrent.TimeUnit;
 
-    public KeepAliveThread() {
-        super.setDaemon(true);
+public class KeepAliveThread extends AbstractScheduledService {
+
+    @Override
+    protected void runOneIteration() {
+        Client.INSTANCE.getConnection().sendToServer(new ClientKeepAlivePacket());
     }
 
     @Override
-    public void run() {
-        try {
-            if (Client.INSTANCE.getConnection().getChannel().isOpen()) {
-                Client.INSTANCE.getConnection().sendToServer(new ClientKeepAlivePacket());
-            } else {
-                System.exit(-1);
-            }
-
-            Thread.sleep(3000L);
-        } catch (Exception exception) {
-            System.exit(-1);
-        }
-
-        run();
+    protected Scheduler scheduler() {
+        return Scheduler.newFixedDelaySchedule(0L, 3L, TimeUnit.SECONDS);
     }
 }

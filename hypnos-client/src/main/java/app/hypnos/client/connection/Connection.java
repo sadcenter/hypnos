@@ -18,7 +18,7 @@ public class Connection {
     @Getter
     private Channel channel;
 
-    public Connection(String address, int port) {
+    public Connection(String address, int port, String user, String pass) {
         Executors.newCachedThreadPool().execute(() -> {
             try {
                 ChannelFuture future = new Bootstrap()
@@ -31,7 +31,7 @@ public class Connection {
                             protected void initChannel(SocketChannel socketChannel) {
                                 socketChannel.pipeline()
                                         .addLast("codec", new PacketCodec(Client.INSTANCE.getPacketStorage()))
-                                        .addLast("global_handler", new GlobalPacketHandler());
+                                        .addLast("global_handler", new GlobalPacketHandler(user, pass));
                             }
                         })
                         .connect(address, port)

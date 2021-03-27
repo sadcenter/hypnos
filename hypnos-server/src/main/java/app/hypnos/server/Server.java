@@ -27,6 +27,8 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,8 +67,10 @@ public class Server {
 
     private MongoDatabase mongoDatabase;
 
+    private KeyPair keyPair;
 
-    public Server() {
+
+    public Server() throws Exception {
         if (INSTANCE != null) {
             logger.info("Can't create another Server instance!");
             return;
@@ -74,6 +78,9 @@ public class Server {
 
         INSTANCE = this;
 
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        keyPair = keyPairGenerator.generateKeyPair();
         startMongo(new UserConverterCodec());
 
         loadDatabase();

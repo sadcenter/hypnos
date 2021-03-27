@@ -3,8 +3,6 @@ package app.hypnos.client;
 import app.hypnos.client.commands.KeepAliveThread;
 import app.hypnos.client.commands.MessageThread;
 import app.hypnos.client.connection.Connection;
-import app.hypnos.client.utils.HardwareUtil;
-import app.hypnos.network.packet.impl.client.ClientAuthenticatePacket;
 import app.hypnos.network.packet.storage.PacketStorage;
 import app.hypnos.utils.MessageUtil;
 import app.hypnos.utils.logging.LogType;
@@ -28,18 +26,20 @@ import java.util.concurrent.Executors;
 public final class Client {
 
     public static final Thread MAIN_THREAD = Thread.currentThread();
-    private static final int VERSION = 31;
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
     public static Client INSTANCE;
-    private PacketStorage packetStorage;
+
     @Setter
     private Connection connection;
+
+    private final int VERSION = 31;
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final PacketStorage packetStorage = new PacketStorage();
     private MessageThread messageThread;
 
     @SneakyThrows
     public Client() {
         INSTANCE = this;
-        //shit ass code, its "example"
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
         MessageUtil.clear();
 
@@ -50,9 +50,8 @@ public final class Client {
                 .send(HttpRequest.newBuilder().GET().uri(URI.create("http://95.214.52.221:4893/api")).build(), HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
-            MessageUtil.sendMessage("Cant connect to api.", Ansi.Color.RED, LogType.ERROR, true);
-            Thread.sleep(4000L);
-            shutdown();
+            MessageUtil.sendMessage("Can't connect to api.", Ansi.Color.RED, LogType.ERROR, true);
+            System.exit(-1);
             return;
         }
 
@@ -60,8 +59,7 @@ public final class Client {
 
         if (jsonObject.get("version").getAsInt() != VERSION) {
             MessageUtil.sendMessage("Install new client version!", Ansi.Color.YELLOW, LogType.INFO, true);
-            Thread.sleep(4000L);
-            shutdown();
+            System.exit(-1);
             return;
         }
 
@@ -71,49 +69,21 @@ public final class Client {
         Scanner scanner = new Scanner(System.in);
 
         MessageUtil.sendMessage("Username: ", Ansi.Color.CYAN, LogType.INFO, false);
-        String userName = scanner.nextLine();
+        String userName = scanner.next();
 
         MessageUtil.sendMessage("Password: ", Ansi.Color.CYAN, LogType.INFO, false);
-        String password = scanner.nextLine();
-
-        packetStorage = new PacketStorage();
+        String password = scanner.next();
 
         MessageUtil.clear();
 
-        connection = new Connection(ip, port);
-
-        while (connection.getChannel() == null) {
-
-        }
-
-        authenticate(userName, password);
-
-        initialize();
-
-        new KeepAliveThread().start();
-
-        MessageUtil.clear();
-
-        while (connection.getChannel().isOpen()) {
-
-        }
-
-        shutdown();
-
-
+        connection = new Connection(ip, port, userName, password);
     }
 
-
-    public void authenticate(String userName, String password) {
-        connection.sendToServer(new ClientAuthenticatePacket(userName, password, HardwareUtil.generateHardwareHash()));
-    }
-
-    @SneakyThrows
     public void initialize() {
         messageThread = new MessageThread(this);
         messageThread.start();
-
-        //Runtime.getRuntime().addShutdownHook(new ShutdownThread(this));
+        new KeepAliveThread().startAsync();
+        MessageUtil.clear();
     }
 
     @SneakyThrows

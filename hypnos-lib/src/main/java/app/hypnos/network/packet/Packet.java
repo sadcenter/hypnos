@@ -19,27 +19,31 @@ public abstract class Packet {
 
     public abstract void write(ByteBuf buf);
 
-    public void writeByteArray(ByteBuf byteBuf, byte[] array) {
-        byteBuf.writeShort(array.length);
-        byteBuf.writeBytes(array);
+    public void writeByteArray(ByteBuf buf, byte[] array) {
+        buf.writeShort(array.length);
+        buf.writeBytes(array);
     }
 
-    public byte[] readByteArray(ByteBuf byteBuf) {
-        byte[] bytes = new byte[byteBuf.readShort()];
-        byteBuf.readBytes(bytes);
+    public byte[] readByteArray(ByteBuf buf) {
+        byte[] bytes = new byte[buf.readShort()];
+        buf.readBytes(bytes);
         return bytes;
     }
 
-    public String readString(int maxLength, ByteBuf byteBuf) {
-        String string = new String(readByteArray(byteBuf), StandardCharsets.UTF_8);
-        int length = string.length();
-        if (length > maxLength) {
-            throw new DecoderException("String is longer than i expected! ("+length+" > "+maxLength+")");
+    public String readString(int maxLength, ByteBuf buf) {
+        short length = buf.readShort();
+        byte[] bytes = new byte[length];
+        buf.readBytes(bytes);
+        String string = new String(bytes, StandardCharsets.UTF_8);
+        if (string.length() > maxLength || string.length() != length) {
+            throw new DecoderException("Unexpected string size!");
         }
         return string;
     }
 
-    public void writeString(ByteBuf byteBuf, String string) {
-        writeByteArray(byteBuf, string.getBytes(StandardCharsets.UTF_8));
+    public void writeString(ByteBuf buf, String string) {
+        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
+        buf.writeShort(bytes.length);
+        buf.writeBytes(bytes);
     }
 }
