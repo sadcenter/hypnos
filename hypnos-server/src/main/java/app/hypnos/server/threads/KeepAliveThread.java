@@ -11,7 +11,9 @@ public class KeepAliveThread extends AbstractScheduledService {
 
     @Override
     protected void runOneIteration() {
-        Server.INSTANCE.getConnectedUsers().stream().map(User::getChannel).filter(channel -> Server.INSTANCE.getKeepAliveCache().getIfPresent(channel) == null).forEach(ChannelOutboundInvoker::close);
+        Server.INSTANCE.getConnectedUsers().stream().map(User::getChannel)
+                .filter(channel -> Server.INSTANCE.getKeepAliveCache().getIfPresent(channel) == null)
+                .forEach(ChannelOutboundInvoker::close);
     }
 
     @Override

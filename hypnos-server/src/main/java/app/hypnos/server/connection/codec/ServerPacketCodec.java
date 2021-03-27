@@ -31,9 +31,9 @@ public class ServerPacketCodec extends ByteToMessageCodec<Packet> {
             byte id = in.readByte();
             Server.INSTANCE.getPacketStorage().get(id).ifPresentOrElse(packet -> {
                 packet.read(in);
-                if (in.isReadable()) {
+                /* if (in.isReadable()) {
                     throw new DecoderException("Packet overload detected! (" + packet.getClass().getSimpleName() + " / " + in.readableBytes() + " extra bytes)");
-                }
+                } */
                 out.add(packet);
             }, () -> {
                 throw new DecoderException("Unknown packet with id: " + id);
